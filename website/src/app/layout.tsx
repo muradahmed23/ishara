@@ -17,6 +17,12 @@ const inter = localFont({
   variable: "--font-inter",
   display: "swap",
 });
+// Headings: Sora (geometric, OFL), self-hosted variable font
+const sora = localFont({
+  src: [{ path: "../fonts/Sora-Variable.woff2", weight: "100 800", style: "normal" }],
+  variable: "--font-sora",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://ishara-mu-three.vercel.app"),
@@ -32,7 +38,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={inter.variable} suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${sora.variable}`} suppressHydrationWarning>
       <head>
         {/* marks that JavaScript runs, so reveal animations may start hidden */}
         <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
