@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="utf-8">
+<title>iShara</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ Sidebar ============ -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark"><span></span></div>
+      <div>
+        <div class="brand-name">iShara</div>
+        <div class="brand-sub">Head &amp; Voice Mouse</div>
+      </div>
+    </div>
+    <nav id="nav">
+      <a data-page="home"><i data-icon="home"></i><span>Home</span></a>
+      <a data-page="training"><i data-icon="target"></i><span>Training</span></a>
+      <a data-page="settings"><i data-icon="sliders"></i><span>Settings</span></a>
+      <a data-page="profiles"><i data-icon="user"></i><span>Profiles</span></a>
+      <a data-page="about"><i data-icon="info"></i><span>About</span></a>
+    </nav>
+    <div class="side-foot">
+      <div class="avatar" id="avatar">D</div>
+      <div><div class="who" id="profileName">Default</div><div class="who-sub" id="calState">Calibrated</div></div>
+    </div>
+  </aside>
+
+  <!-- ============ Main ============ -->
+  <main>
+    <header class="toolbar">
+      <h1 id="pageTitle">Home</h1>
+      <div class="chips">
+        <button class="chip" id="chipHeadband"><span class="led"></span><span class="t">Headband</span></button>
+        <button class="chip" id="chipMic"><span class="led"></span><span class="t">Microphone</span></button>
+      </div>
+    </header>
+
+    <div class="scroll" id="scroll">
+
+      <!-- ---------------- Home ---------------- -->
+      <section class="page" id="page-home">
+        <div class="tiles">
+          <button class="tile" id="tileHeadband">
+            <div class="tile-ic"><i data-icon="bluetooth"></i></div>
+            <div class="tile-label">Headband</div>
+            <div class="tile-value" id="vHeadband">—</div>
+          </button>
+          <button class="tile" id="tileControl">
+            <div class="tile-ic"><i data-icon="cursor"></i></div>
+            <div class="tile-label">Head control</div>
+            <div class="tile-value" id="vControl">—</div>
+          </button>
+          <button class="tile" id="tileMic">
+            <div class="tile-ic"><i data-icon="mic"></i></div>
+            <div class="tile-label">Microphone</div>
+            <div class="tile-value" id="vMic">—</div>
+          </button>
+          <div class="tile tile-action">
+            <button class="btn btn-primary btn-lg" id="btnPause"><i data-icon="pause"></i><span>Pause control</span></button>
+            <div class="hint" id="pauseHint">or say “pause”</div>
+          </div>
+        </div>
+
+        <div class="grid2">
+          <div class="card">
+            <div class="card-head"><h2>Head tracking</h2><span class="tag" id="liveTag">Live</span></div>
+            <div class="track">
+              <canvas id="plot" width="220" height="220"></canvas>
+              <div class="list readouts">
+                <div class="row"><span>Direction</span><b id="rDir">—</b></div>
+                <div class="row"><span>Up / down</span><b id="rPitch">—</b></div>
+                <div class="row"><span>Left / right</span><b id="rRoll">—</b></div>
+                <div class="row"><span>Cursor</span><b id="rCursor">—</b></div>
+                <div class="row"><span>Your range</span><b id="rRange">—</b></div>
+              </div>
+            </div>
+            <div class="card-foot"><button class="btn btn-plain" data-go="calibrate">Recalibrate</button></div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><h2>Voice</h2><span class="tag muted">Offline</span></div>
+            <div class="voice">
+              <div class="voice-top">
+                <div class="meter" id="meter"></div>
+                <div class="voice-state" id="voiceState">Listening for commands</div>
+              </div>
+              <div class="seg" id="modeSeg">
+                <button data-v="command">Commands</button>
+                <button data-v="dictation">Dictation</button>
+              </div>
+              <div class="list">
+                <div class="row col"><span>Heard</span><b id="heard" class="heard">Say “click” or “start typing”</b></div>
+                <div class="row col"><span>Last action</span><b id="lastAction">—</b></div>
+              </div>
+            </div>
+            <div class="card-foot">
+              <button class="btn btn-plain" id="btnMute"><i data-icon="micOff"></i><span>Mute microphone</span></button>
+              <button class="btn btn-plain" data-go="settings" data-tab="commands"><i data-icon="list"></i><span>All voice commands</span></button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------------- Training ---------------- -->
+      <section class="page" id="page-training">
+        <p class="lead">Calibrate once for each person, then practise until it feels natural.</p>
+        <div class="group">
+          <button class="cell link" data-go="calibrate">
+            <div class="cell-ic blue"><i data-icon="target"></i></div>
+            <div class="cell-main"><div class="cell-title">Calibration</div>
+              <div class="cell-sub" id="trainCal">Look straight, then tilt left, right, up and down.</div></div>
+            <i data-icon="chevron" class="chev"></i>
+          </button>
+          <button class="cell link" id="openPractice">
+            <div class="cell-ic green"><i data-icon="check"></i></div>
+            <div class="cell-main"><div class="cell-title">Practice</div>
+              <div class="cell-sub" id="trainPractice">Seven short lessons</div></div>
+            <i data-icon="chevron" class="chev"></i>
+          </button>
+        </div>
+        <p class="foot">Practice opens full screen. Each lesson unlocks the next one.</p>
+      </section>
+
+      <!-- ---------------- Settings ---------------- -->
+      <section class="page" id="page-settings">
+        <div class="seg seg-wide" id="setTabs">
+          <button data-v="movement">Movement</button>
+          <button data-v="voice">Voice</button>
+          <button data-v="commands">Commands</button>
+          <button data-v="access">Accessibility</button>
+          <button data-v="widget">Floating bar</button>
+          <button data-v="calibration">Calibration</button>
+        </div>
+        <div id="setBody"></div>
+      </section>
+
+      <!-- ---------------- Profiles ---------------- -->
+      <section class="page" id="page-profiles">
+        <p class="lead">Each person has their own calibration and settings.</p>
+        <div class="group" id="profileList"></div>
+        <div class="group">
+          <div class="cell">
+            <input class="input" id="newProfile" placeholder="New person’s name" maxlength="40">
+            <button class="btn btn-primary" id="addProfile">Add</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ---------------- About ---------------- -->
+      <section class="page" id="page-about">
+        <div class="about-hero">
+          <div class="mark big"><span></span></div>
+          <div><div class="about-name">iShara</div><div class="cell-sub" id="aboutVersion">Version</div></div>
+        </div>
+        <div class="group">
+          <div class="cell"><div class="cell-main"><div class="cell-title">What it does</div>
+            <div class="cell-sub">A low-cost head-controlled mouse for people with upper limb disability. Tilt your head to move the cursor; speak to click, scroll and type.</div></div></div>
+          <div class="cell"><div class="cell-main"><div class="cell-title">How it works</div>
+            <div class="cell-sub">ESP32 + MPU6050 headband acting as a Bluetooth mouse with a personal movement model. Offline voice: Vosk for commands, Whisper for typing.</div></div></div>
+          <div class="cell"><div class="cell-main"><div class="cell-title">Privacy</div>
+            <div class="cell-sub">Everything runs on this computer. No internet connection is needed and nothing is uploaded.</div></div></div>
+          <div class="cell"><div class="cell-main"><div class="cell-title">Project</div>
+            <div class="cell-sub">Embedded Systems Design (CEN-440), Bahria University. Typeface: Inter (SIL Open Font License).</div></div></div>
+        </div>
+      </section>
+    </div>
+
+    <!-- floating cursor status capsule -->
+    <div class="capsule" id="capsule"><i data-icon="cursor"></i><span id="capsuleText">—</span></div>
+  </main>
+</div>
+
+<!-- ============ Calibration sheet ============ -->
+<div class="sheet-backdrop" id="calSheet">
+  <div class="sheet">
+    <div class="sheet-side">
+      <div class="sheet-title">Calibration</div>
+      <div class="cell-sub">About one minute. The mouse is paused until you finish.</div>
+      <ol class="steps" id="calSteps"></ol>
+    </div>
+    <div class="sheet-main">
+      <div class="step-no" id="calNo">Step 1 of 6</div>
+      <h2 class="step-title" id="calTitle">Look straight</h2>
+      <p class="step-hint" id="calHint"></p>
+      <canvas id="calPlot" width="260" height="260"></canvas>
+      <div class="progress"><div id="calBar"></div></div>
+      <p class="note" id="calNote"></p>
+      <div class="sheet-actions" id="calActions"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ Prompt dialog ============ -->
+<div class="sheet-backdrop" id="promptSheet">
+  <div class="dialog">
+    <div class="dialog-title" id="promptTitle">Rename</div>
+    <input class="input" id="promptInput" maxlength="40">
+    <div class="dialog-actions">
+      <button class="btn btn-plain" id="promptCancel">Cancel</button>
+      <button class="btn btn-primary" id="promptOk">Save</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

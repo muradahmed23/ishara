@@ -1,0 +1,27 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+build/
+dist/
+
+# --- Speech models (large, downloaded by scripts/setup.ps1) ---
+desktop/models/*
+!desktop/models/README.md
+
+# --- Arduino / ESP32 build output ---
+firmware/**/build/
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.claude/
+Thumbs.db
+desktop.ini
+.DS_Store
+
+# --- Private documents ---
+docs/proposal/

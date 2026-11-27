@@ -1,0 +1,5 @@
+bleak>=3.0        # Bluetooth LE data link to the headband
+vosk>=0.3.45      # offline speech recognition (model in models/)
+sounddevice>=0.5  # microphone input
+pywebview>=5.0    # main window (HTML/CSS in ishara/web, uses Windows' Edge WebView2)
+faster-whisper>=1.2  # accurate offline dictation (models in models/whisper-*)
