@@ -8,7 +8,12 @@ export type Release = {
   releaseDate: string | null;
   installer: { file: string; url: string | null; sha256: string | null; sizeBytes: number | null; includesModels: boolean };
   requirements: { os: string; minWindowsBuild: number; bluetooth: string; microphone: boolean; diskSpaceMB: number };
-  models: { version: string; bundled: boolean; items: { name: string; purpose: string }[] };
+  models: {
+    version: string;
+    bundled: boolean;
+    items: { name: string; purpose: string }[];
+    optional?: { name: string; purpose: string; offeredIn: string; url: string; sha256: string; sizeBytes: number }[];
+  };
   firmware: { version: string; board: string };
   notes: string[];
 };

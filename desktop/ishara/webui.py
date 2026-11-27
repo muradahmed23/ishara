@@ -19,6 +19,7 @@ from . import __version__, profiles
 from . import model as pm
 from .calib import CalibrationSession
 from . import integrity
+from .optional_models import CATALOG as OPTIONAL_MODELS, ModelDownloader
 from .updates import Updater
 from .protocol import DEFAULT_MODEL
 from .voice import WHISPER_MODELS, list_microphones, whisper_available
@@ -151,8 +152,18 @@ class Api:
         self._window = None
         self._native = NativeLayer(ctrl, self)
         self._updater = Updater()
+        self._downloads = ModelDownloader()
+        self._downloads.on_done = self._use_downloaded_model
         self._models = dict(state="checking", problems=[])
         threading.Thread(target=self._verify_models, daemon=True, name="model-check").start()
+
+    def _use_downloaded_model(self, name):
+        """A freshly downloaded dictation model is used straight away."""
+        c = self._ctrl
+        c.settings["dictation_engine"], c.settings["whisper_model"] = "whisper", name
+        c.save_profile()
+        c.restart_voice()
+        c.say("High accuracy typing is ready.")
 
     def _verify_models(self):
         try:
@@ -207,6 +218,8 @@ class Api:
             ),
             models=self._models,
             update=dict(self._updater.status),
+            optional_models={k: dict(v, title=OPTIONAL_MODELS[k]["title"], size=OPTIONAL_MODELS[k]["size"])
+                             for k, v in self._downloads.status.items()},
             welcome=not s.get("welcome_done", False),
         )
 
@@ -338,6 +351,9 @@ class Api:
         c.settings["welcome_done"] = True
         c.save_profile()
         return True
+
+    def model_download(self, name):
+        return self._downloads.start(name)
 
     def update_check(self):
         self._updater.check()

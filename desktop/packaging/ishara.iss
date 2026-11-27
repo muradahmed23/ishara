@@ -2,7 +2,9 @@
 ; Built by packaging\build.ps1, which passes /DAppVersion=x.y.z.
 ;
 ; Installs:  {app}\iShara.exe + _internal\   (PyInstaller one-folder build)
-;            {app}\models\                    (Vosk + Whisper speech models)
+;            {app}\models\                    (Vosk commands + standard Whisper dictation)
+; The best-accuracy model (whisper-small.en) is NOT bundled: the app offers it as an optional
+; download during onboarding / in Settings (ishara/optional_models.py, release models-v1).
 ; Never touches %APPDATA%\Ishara (profiles, calibration, settings), so updates keep them.
 
 #ifndef AppVersion
@@ -59,7 +61,6 @@ Type: filesandordirs; Name: "{app}\_internal"
 Source: "{#Root}\dist\iShara\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#Root}\models\vosk-model-small-en-us-0.15\*"; DestDir: "{app}\models\vosk-model-small-en-us-0.15"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#Root}\models\whisper-base.en\*"; DestDir: "{app}\models\whisper-base.en"; Flags: ignoreversion recursesubdirs createallsubdirs
-Source: "{#Root}\models\whisper-small.en\*"; DestDir: "{app}\models\whisper-small.en"; Flags: ignoreversion recursesubdirs createallsubdirs
 Source: "{#Root}\models\MODELS.sha256"; DestDir: "{app}\models"; Flags: ignoreversion
 
 [Icons]

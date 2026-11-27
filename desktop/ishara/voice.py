@@ -19,10 +19,18 @@ import queue
 import re
 import threading
 
-from .paths import MODELS_DIR, USER_DIR
+from .paths import MODELS_DIR, USER_DIR, USER_MODELS_DIR
 
 MODEL_DIR = os.path.join(MODELS_DIR, "vosk-model-small-en-us-0.15")
-WHISPER_DIR = os.path.join(MODELS_DIR, "whisper-{}")
+
+
+def whisper_dir(name):
+    """Bundled models live next to the app; optional ones are downloaded to the user folder."""
+    for root in (MODELS_DIR, USER_MODELS_DIR):
+        d = os.path.join(root, f"whisper-{name}")
+        if os.path.isfile(os.path.join(d, "model.bin")):
+            return d
+    return os.path.join(MODELS_DIR, f"whisper-{name}")
 WHISPER_MODELS = {"base.en": "Standard (fast)", "small.en": "Best accuracy (slower)"}
 RATE = 16000
 MAX_UTTERANCE_S = 12      # never let one dictation chunk grow longer than this
@@ -69,11 +77,7 @@ def list_microphones():
 
 
 def whisper_available(name="base.en"):
-    try:
-        import faster_whisper  # noqa: F401
-    except Exception:
-        return False
-    return os.path.isdir(WHISPER_DIR.format(name))
+    return os.path.isfile(os.path.join(whisper_dir(name), "model.bin"))
 
 
 def match_command(text, commands):
@@ -134,7 +138,7 @@ class WhisperWorker:
         try:
             from faster_whisper import WhisperModel
             threads = max(2, (os.cpu_count() or 4) - 2)
-            self.model = WhisperModel(WHISPER_DIR.format(self.name), device="cpu",
+            self.model = WhisperModel(whisper_dir(self.name), device="cpu",
                                       compute_type="int8", cpu_threads=threads)
         except Exception as e:
             self.failed = True

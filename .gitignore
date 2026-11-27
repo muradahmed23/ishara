@@ -36,3 +36,6 @@ website/node_modules/
 website/.next/
 website/.vercel/
 website/*.tsbuildinfo
+
+# --- Large release assets (uploaded to GitHub Releases, not committed) ---
+release-assets/

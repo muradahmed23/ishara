@@ -24,8 +24,10 @@ def _sha256(path, chunk=1 << 20):
     return h.hexdigest()
 
 
-def _files(root):
-    for d, _, names in os.walk(root):
+def _files(root, exclude=()):
+    for d, dirs, names in os.walk(root):
+        if d == root:
+            dirs[:] = [x for x in dirs if x not in exclude]
         for n in sorted(names):
             p = os.path.join(d, n)
             rel = os.path.relpath(p, root).replace("\\", "/")
@@ -33,8 +35,8 @@ def _files(root):
                 yield rel, p
 
 
-def write_manifest(root=MODELS_DIR):
-    lines = [f"{_sha256(p)}  {rel}" for rel, p in sorted(_files(root))]
+def write_manifest(root=MODELS_DIR, exclude=()):
+    lines = [f"{_sha256(p)}  {rel}" for rel, p in sorted(_files(root, exclude))]
     with open(os.path.join(root, MANIFEST), "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(lines) + "\n")
     return len(lines)
@@ -86,8 +88,10 @@ def verify(root=MODELS_DIR, use_cache=True, progress=None):
 
 if __name__ == "__main__":
     if len(sys.argv) >= 2 and sys.argv[1] == "--write":
-        root = sys.argv[2] if len(sys.argv) > 2 else MODELS_DIR
-        print(f"{write_manifest(root)} files hashed -> {os.path.join(root, MANIFEST)}")
+        args = sys.argv[2:]
+        excl = tuple(args[args.index("--exclude") + 1:]) if "--exclude" in args else ()
+        root = args[0] if args and args[0] != "--exclude" else MODELS_DIR
+        print(f"{write_manifest(root, excl)} files hashed -> {os.path.join(root, MANIFEST)}")
     else:
         ok, problems = verify(use_cache=False)
         print("models OK" if ok else "\n".join(problems))

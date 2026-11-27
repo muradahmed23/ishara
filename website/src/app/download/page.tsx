@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { DownloadCard } from "@/components/DownloadCard";
-import { getRelease } from "@/lib/release";
+import { formatSize, getRelease } from "@/lib/release";
 
 export const metadata: Metadata = { title: "Download", description: "Download iShara for Windows: one complete offline installer." };
 
@@ -38,6 +38,14 @@ export default async function DownloadPage() {
             <div className="list">
               {r.models.items.map((m) => <div className="li" key={m.name}><span>{m.purpose}</span><span className="mono">{m.name}</span></div>)}
             </div>
+            {r.models.optional && r.models.optional.length > 0 && (<>
+              <h3 style={{ margin: "28px 0 14px" }}>Optional download</h3>
+              <div className="list">
+                {r.models.optional.map((m) => (
+                  <div className="li" key={m.name}><span>{m.purpose} · {formatSize(m.sizeBytes)}</span><span>offered in {m.offeredIn}</span></div>
+                ))}
+              </div>
+            </>)}
           </div>
         </div>
       </section>

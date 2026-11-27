@@ -29,3 +29,6 @@ ASSETS_DIR = os.path.join(RESOURCE_DIR, "assets")
 # ISHARA_MODELS lets developers and tests point at another model folder.
 MODELS_DIR = os.environ.get("ISHARA_MODELS") or os.path.join(INSTALL_DIR, "models")
 USER_DIR = os.path.join(os.environ.get("APPDATA", "."), "Ishara")
+# Optional models downloaded from inside the app (e.g. best-accuracy dictation). Always
+# user-writable, even when iShara is installed for all users in Program Files.
+USER_MODELS_DIR = os.path.join(os.environ.get("LOCALAPPDATA", os.environ.get("APPDATA", ".")), "Ishara", "models")

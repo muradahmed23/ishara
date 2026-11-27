@@ -1,15 +1,15 @@
 {
   "$schema": "./release.schema.json",
   "product": "iShara",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "status": "released",
   "releaseDate": "2026-11-27",
   "channel": "stable",
   "installer": {
-    "file": "iShara-Setup-2.0.0.exe",
-    "url": "https://github.com/muradahmed23/ishara/releases/download/v2.0.0/iShara-Setup-2.0.0.exe",
-    "sha256": "986fbb8b6fd3c8f6d6826bf77c33e37e5acbde3292df29981b6fb0ce956cae3e",
-    "sizeBytes": 690833369,
+    "file": "iShara-Setup-2.0.1.exe",
+    "url": "https://github.com/muradahmed23/ishara/releases/download/v2.0.1/iShara-Setup-2.0.1.exe",
+    "sha256": "90a1e1d2b4dc7cf47fdd613e0df60ea4f4ee07b503fe1ed548b5c44e572bb8e5",
+    "sizeBytes": 233698724,
     "includesModels": true
   },
   "requirements": {
@@ -17,7 +17,7 @@
     "minWindowsBuild": 17763,
     "bluetooth": "Bluetooth 4.0 (LE) or newer",
     "microphone": true,
-    "diskSpaceMB": 2500
+    "diskSpaceMB": 900
   },
   "models": {
     "version": "2026.11",
@@ -30,10 +30,16 @@
       {
         "name": "whisper-base.en",
         "purpose": "dictation (standard)"
-      },
+      }
+    ],
+    "optional": [
       {
         "name": "whisper-small.en",
-        "purpose": "dictation (best accuracy)"
+        "purpose": "dictation (best accuracy)",
+        "offeredIn": "onboarding and Settings → Voice",
+        "url": "https://github.com/muradahmed23/ishara/releases/download/models-v1/whisper-small.en.zip",
+        "sha256": "cd925ca19ece2202c2dce4dfbeb2b92c92680d9bb9a6d99fd521e5f90944f13c",
+        "sizeBytes": 486099480
       }
     ]
   },
@@ -42,10 +48,10 @@
     "board": "ESP32 Dev Module"
   },
   "notes": [
-    "Complete offline installer: app, Python runtime, dependencies and speech models in one file.",
-    "Guided calibration detects how the headband sits on your head automatically.",
-    "Voice clicks work everywhere, including the On-Screen Keyboard.",
-    "Hand mouse mode, middle click, back and forward buttons.",
+    "Much smaller download: the installer no longer includes the large best-accuracy model.",
+    "New onboarding step: choose high-accuracy typing; it downloads in the background while you continue setup.",
+    "Optional models are verified (SHA-256) and resume if the download is interrupted.",
+    "Leaner app: unused libraries removed.",
     "Your profiles and calibration are kept when you update."
   ]
 }

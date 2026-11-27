@@ -34,7 +34,10 @@ a = Analysis(
     datas=datas,
     binaries=binaries,
     hiddenimports=hiddenimports,
-    excludes=["pytest", "_pytest", "matplotlib", "IPython", "notebook", "PyQt5", "PySide6"],
+    # av: PyAV is never called (see rthook_av_stub.py); hf_xet: download helper the app never uses
+    # (models load from disk); PIL: not used by the app. Together ~90 MB.
+    excludes=["pytest", "_pytest", "matplotlib", "IPython", "notebook", "PyQt5", "PySide6", "av", "hf_xet", "PIL"],
+    runtime_hooks=[os.path.join(SPECPATH, "rthook_av_stub.py")],
     noarchive=False,
 )
 pyz = PYZ(a.pure)

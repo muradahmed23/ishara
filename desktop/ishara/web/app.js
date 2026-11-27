@@ -237,6 +237,14 @@ async function renderSettings() {
     h += head("Dictation") + `<div class="group">` + cell("Accuracy", "Whisper writes punctuation and capitals. Best is slower.", segH("dict", "engine", d.dictation, [["vosk", "Basic"]].concat(d.whisper.map((w) => [w.id, w.name])))) +
       `<div class="cell"><div class="cell-main"><div class="cell-title">Your words</div><div class="cell-sub">Names and words to spell correctly, separated by commas</div></div><input class="input" id="vocab" style="max-width:320px" placeholder="e.g. Murad Ahmed, Bahria, Islamabad" value="${esc(d.vocabulary)}"></div>` +
       `</div>` + gfoot("Say “start typing”, speak, then “stop typing”.");
+    const hq = S && S.optional_models && S.optional_models["small.en"];
+    if (hq) {
+      const hqText = { installed: "Installed", downloading: `Downloading… ${Math.round(hq.progress * 100)}%`, verifying: "Checking…", installing: "Installing…", error: hq.error }[hq.state];
+      const hqCtrl = hq.state === "available" || hq.state === "error"
+        ? btn("btn-primary", hq.state === "error" ? "Try again" : `Download (${Math.round(hq.size / 1048576)} MB)`, "api().model_download('small.en'); setTimeout(renderSettings, 600)")
+        : `<span class="cell-value">${esc(hqText || "")}</span>`;
+      h += head("High accuracy typing") + `<div class="group">` + cell("Best accuracy model", "Understands names, accents and long sentences better. Downloads once, then works offline.", hqCtrl) + `</div>`;
+    }
     h += head("Spoken feedback") + `<div class="group">` + cell("Speak actions", "The computer says what it is doing", sw("set", "speak", s.speak)) + cell("Speaking speed", "", rng("set", "speech_rate", s.speech_rate, -5, 5, 1, "signed")) + cell("Volume", "", rng("set", "speech_volume", s.speech_volume, 0, 100, 5, "vol")) + `</div>`;
   } else if (setTab === "commands") {
     d.commands.forEach((g, gi) => {

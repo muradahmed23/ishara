@@ -38,11 +38,12 @@ VSVersionInfo(
 "@ | Set-Content -Encoding utf8 (Join-Path $PSScriptRoot "version_info.txt")
 
 # ---- model checksums -----------------------------------------------------
-foreach ($m in "vosk-model-small-en-us-0.15", "whisper-base.en", "whisper-small.en") {
-    if (-not (Test-Path "models\$m")) { throw "Missing models\$m. Run ..\scripts\setup.ps1 -BestDictation" }
+foreach ($m in "vosk-model-small-en-us-0.15", "whisper-base.en") {
+    if (-not (Test-Path "models\$m")) { throw "Missing models\$m. Run ..\scripts\setup.ps1" }
 }
-Write-Host "Hashing models..." -ForegroundColor Cyan
-& $py -m ishara.integrity --write models
+Write-Host "Hashing bundled models..." -ForegroundColor Cyan
+# whisper-small.en is an optional download, not part of the installer
+& $py -m ishara.integrity --write models --exclude whisper-small.en
 if ($LASTEXITCODE) { throw "model hashing failed" }
 
 # ---- PyInstaller -----------------------------------------------------------

@@ -25,16 +25,16 @@ export function DownloadCard({ release: r }: { release: Release }) {
       )}
 
       <div className="facts">
-        <div className="fact"><b>{ready ? formatSize(r.installer.sizeBytes) : "≈ 700 MB"}</b><span>one complete installer</span></div>
+        <div className="fact"><b>{ready ? formatSize(r.installer.sizeBytes) : "—"}</b><span>one complete installer</span></div>
         <div className="fact"><b>Windows 10 / 11</b><span>64-bit</span></div>
         <div className="fact"><b>Offline</b><span>speech models included</span></div>
         <div className="fact"><b>{r.releaseDate ?? "—"}</b><span>release date</span></div>
       </div>
 
       <p className="muted">
-        The installer contains everything: the app, its runtime and the {r.models.items.length} offline speech models
-        (voice commands and dictation). No Python, no extra downloads, no account. Your profiles and calibration are kept
-        when you update.
+        The installer contains everything you need: the app, its runtime and the offline speech models for voice
+        commands and standard voice typing. No Python, no account. High-accuracy typing is an optional extra download
+        you can choose during setup. Your profiles and calibration are kept when you update.
       </p>
       {ready && r.installer.sha256 && (
         <p className="small muted" style={{ marginTop: 14 }}>

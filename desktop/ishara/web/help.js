@@ -154,6 +154,25 @@ const WELCOME = [
       return s.mic.state === "error" ? ["red", "Microphone problem. Check Windows microphone privacy settings."]
         : s.mic.muted ? ["orange", "Muted. Say “start listening”."]
         : heard ? ["green", "I can hear you."] : ["orange", "Listening… say “hello”."]; } },
+  { name: "Typing accuracy", title: "Do you want high-accuracy typing?", skippable: true,
+    body: "iShara already includes <b>standard</b> voice typing, which works well for most people.<br><br>" +
+      "<b>High accuracy</b> understands names, accents and long sentences better. It is an extra <b>464 MB</b> download " +
+      "and runs fully offline afterwards. It downloads in the background while you continue the setup.<br><br>" +
+      "You can also add it later in Settings → Voice.",
+    say: "Do you want high accuracy typing? It is an extra download of about 460 megabytes. Press download, or skip for now.",
+    extra: `<button class="btn btn-primary" id="wDl" onclick="api().model_download('small.en')">Download high accuracy</button>`,
+    status: (s) => {
+      const m = s.optional_models && s.optional_models["small.en"];
+      if (!m) return null;
+      return {
+        installed: ["green", "High accuracy typing is installed and turned on."],
+        available: ["orange", "Not downloaded. Standard typing will be used."],
+        downloading: ["orange", `Downloading… ${Math.round(m.progress * 100)}%. You can continue the setup.`],
+        verifying: ["orange", "Checking the download…"],
+        installing: ["orange", "Installing…"],
+        error: ["red", m.error],
+      }[m.state] || null;
+    } },
   { name: "Wear the headband", title: "Put on the headband",
     body: "<ol><li>Place the band so the electronics sit on your <b>forehead</b>.</li><li>The blue sensor board faces outwards, flat against the foam.</li><li>Make it snug so it can't slide.</li><li>Switch it on. Charge it first if needed (USB-C on the charger board).</li></ol>",
     say: "Put the headband on, with the electronics on your forehead. Make it snug so it cannot slide, and switch it on." },
@@ -203,17 +222,24 @@ function renderWelcome(s) {
   if ($("wStatus").dataset.h !== sh) { $("wStatus").dataset.h = sh; $("wStatus").innerHTML = sh; }
   const last = wStep === WELCOME.length - 1;
   const doneStep = !!(st && st[0] === "green");
-  const sig = wStep + ":" + doneStep;
+  const busy = !!(st && /Downloading|Checking|Installing/.test(st[1]));
+  const sig = wStep + ":" + doneStep + ":" + busy;
   if (sig !== wSig) {
     wSig = sig;
     $("wActions").innerHTML = (wStep > 0 ? `<button class="btn btn-gray" onclick="welcomeGo(-1)">Back</button>` : `<button class="btn btn-gray" onclick="welcomeGo(${WELCOME.length})">Skip guide</button>`) +
-      `<button class="btn btn-plain" onclick="api().speak(WELCOME[wStep].say)">Repeat</button>` + (w.extra || "") +
-      (w.skippable && !doneStep ? `<button class="btn btn-gray" onclick="welcomeGo(1)">Skip for now</button>` : `<button class="btn btn-primary" onclick="welcomeGo(1)">${last ? "Start using iShara" : "Next"}</button>`);
+      `<button class="btn btn-plain" onclick="api().speak(WELCOME[wStep].say)">Repeat</button>` + (doneStep || busy ? "" : (w.extra || "")) +
+      (w.skippable && !doneStep ? `<button class="btn btn-gray" onclick="welcomeGo(1)">${st && /Downloading|Checking|Installing/.test(st[1]) ? "Continue" : "Skip for now"}</button>` : `<button class="btn btn-primary" onclick="welcomeGo(1)">${last ? "Start using iShara" : "Next"}</button>`);
   }
 }
 
 /* ---------------- hook into the main loop ---------------- */
+let hqSig = "";
 function renderExtras(s) {
+  const hq = s.optional_models && s.optional_models["small.en"];
+  if (hq && page === "settings" && setTab === "voice") {
+    const sig = hq.state + ":" + Math.floor((hq.progress || 0) * 20);   // refresh every 5 %
+    if (sig !== hqSig) { hqSig = sig; renderSettings(); }
+  }
   if (page === "help") renderDevice(s);
   if (page === "about") renderUpdate(s.update);
   renderWelcome(s);

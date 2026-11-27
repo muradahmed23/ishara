@@ -1,6 +1,6 @@
 [project]
 name = "ishara"
-version = "2.0.0"
+version = "2.0.1"
 description = "iShara - hands-free computer control: head-tilt mouse headband + offline voice commands"
 readme = "../README.md"
 requires-python = ">=3.10"
