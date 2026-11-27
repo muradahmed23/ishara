@@ -5,7 +5,7 @@ import re
 
 from .protocol import DEFAULT_MODEL, clamp_model
 
-APPDIR = os.path.join(os.environ.get("APPDATA", "."), "Ishara")
+from .paths import USER_DIR as APPDIR
 PROFILE_DIR = os.path.join(APPDIR, "profiles")
 CONFIG_FILE = os.path.join(APPDIR, "config.json")
 
@@ -55,6 +55,7 @@ DEFAULT_SETTINGS = {
     "widget_click_through": False, # clicks pass through the bar (it can't be pressed)
     "theme": "light",
     "calibrated": False,
+    "welcome_done": False,         # first-run welcome finished
     "practice_passed": [],
 }
 

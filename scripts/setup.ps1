@@ -6,7 +6,7 @@
   .\scripts\setup.ps1 -BestDictation   # also whisper small.en (~480 MB)
 #>
 param([switch]$BestDictation)
-$ErrorActionPreference = "Stop"
+$ErrorActionPreference = "Continue"   # native tools log to stderr; check exit codes
 $Desktop = Join-Path $PSScriptRoot "..\desktop" | Resolve-Path
 $Models  = Join-Path $Desktop "models"
 Set-Location $Desktop
@@ -18,6 +18,7 @@ if (-not (Test-Path ".venv")) {
 $py = Join-Path $Desktop ".venv\Scripts\python.exe"
 & $py -m pip install --upgrade pip
 & $py -m pip install -r requirements-dev.txt
+if ($LASTEXITCODE) { throw "Installing dependencies failed" }
 
 # Vosk command model
 $vosk = Join-Path $Models "vosk-model-small-en-us-0.15"

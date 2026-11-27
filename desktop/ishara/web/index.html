@@ -23,6 +23,7 @@
       <a data-page="training"><i data-icon="target"></i><span>Training</span></a>
       <a data-page="settings"><i data-icon="sliders"></i><span>Settings</span></a>
       <a data-page="profiles"><i data-icon="user"></i><span>Profiles</span></a>
+      <a data-page="help"><i data-icon="help"></i><span>Help</span></a>
       <a data-page="about"><i data-icon="info"></i><span>About</span></a>
     </nav>
     <div class="side-foot">
@@ -152,6 +153,24 @@
         </div>
       </section>
 
+      <!-- ---------------- Help ---------------- -->
+      <section class="page" id="page-help">
+        <p class="lead">Simple, step-by-step guides. Press <b>Read aloud</b> on any topic to hear it.</p>
+        <div class="group-head">Your headband</div>
+        <div class="group" id="deviceGroup"></div>
+        <div class="group-foot">This headband has no battery sensor, so the battery level is not shown. Charge it with the USB-C port on the charger board.</div>
+        <div class="group-head">Getting started</div>
+        <div class="group">
+          <button class="cell link" id="openWelcome">
+            <div class="cell-ic blue"><i data-icon="play"></i></div>
+            <div class="cell-main"><div class="cell-title">Run the welcome guide again</div>
+              <div class="cell-sub">Microphone, headband, Bluetooth, calibration and a voice test</div></div>
+            <i data-icon="chevron" class="chev"></i>
+          </button>
+        </div>
+        <div id="helpTopics"></div>
+      </section>
+
       <!-- ---------------- About ---------------- -->
       <section class="page" id="page-about">
         <div class="about-hero">
@@ -165,6 +184,12 @@
             <div class="cell-sub">ESP32 + MPU6050 headband acting as a Bluetooth mouse with a personal movement model. Offline voice: Vosk for commands, Whisper for typing.</div></div></div>
           <div class="cell"><div class="cell-main"><div class="cell-title">Privacy</div>
             <div class="cell-sub">Everything runs on this computer. No internet connection is needed and nothing is uploaded.</div></div></div>
+          <div class="cell"><div class="cell-main"><div class="cell-title">Updates</div>
+            <div class="cell-sub" id="updText">Check whether a newer version is available.</div>
+            <div class="progress small hide" id="updBarWrap"><div id="updBar"></div></div></div>
+            <div id="updActions"><button class="btn btn-gray" onclick="api().update_check()">Check for updates</button></div></div>
+          <div class="cell"><div class="cell-main"><div class="cell-title">Your data</div>
+            <div class="cell-sub">Profiles, calibration and settings are stored in %APPDATA%\Ishara and are kept when you update.</div></div></div>
           <div class="cell"><div class="cell-main"><div class="cell-title">Project</div>
             <div class="cell-sub">Embedded Systems Design (CEN-440), Bahria University. Typeface: Inter (SIL Open Font License).</div></div></div>
         </div>
@@ -196,6 +221,24 @@
   </div>
 </div>
 
+<!-- ============ Welcome (first run) ============ -->
+<div class="sheet-backdrop" id="welcomeSheet">
+  <div class="sheet">
+    <div class="sheet-side">
+      <div class="sheet-title">Welcome to iShara</div>
+      <div class="cell-sub">About five minutes. Every step is read aloud.</div>
+      <ol class="steps" id="wSteps"></ol>
+    </div>
+    <div class="sheet-main">
+      <div class="step-no" id="wNo">Step 1 of 7</div>
+      <h2 class="step-title" id="wTitle"></h2>
+      <div class="step-hint" id="wBody"></div>
+      <div class="wstatus" id="wStatus"></div>
+      <div class="sheet-actions" id="wActions"></div>
+    </div>
+  </div>
+</div>
+
 <!-- ============ Prompt dialog ============ -->
 <div class="sheet-backdrop" id="promptSheet">
   <div class="dialog">
@@ -209,5 +252,6 @@
 </div>
 
 <script src="app.js"></script>
+<script src="help.js"></script>
 </body>
 </html>

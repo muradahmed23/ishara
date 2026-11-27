@@ -15,6 +15,7 @@ const ICONS = {
   play: '<path d="M8 5.5 18.5 12 8 18.5z"/>',
   check: '<path d="M5 12.5 9.5 17 19 7"/>',
   chevron: '<path d="M9.5 6l6 6-6 6"/>',
+  help: '<circle cx="12" cy="12" r="8.5"/><path d="M9.6 9.4a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2.1-2.4 3.6M12 17v.4"/>',
   list: '<path d="M9 6.5h11M9 12h11M9 17.5h11M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01"/>',
 };
 const svg = (n) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${ICONS[n] || ""}</svg>`;
@@ -32,7 +33,7 @@ let setTab = "movement";
 let theme = "light";
 
 /* ---------------- navigation ---------------- */
-const TITLES = { home: "Home", training: "Training", settings: "Settings", profiles: "Profiles", about: "About" };
+const TITLES = { home: "Home", training: "Training", settings: "Settings", profiles: "Profiles", help: "Help", about: "About" };
 function go(p, tab) {
   if (p === "calibrate") { api().calib_start(); return; }
   page = p;
@@ -42,6 +43,7 @@ function go(p, tab) {
   $("scroll").scrollTop = 0;
   if (p === "settings") { if (tab) setTab = tab; renderSettings(); }
   if (p === "profiles") renderProfiles();
+  if (p === "help") renderHelpTopics();
 }
 
 /* ---------------- canvas plot (shared by Home and Calibration) ---------------- */
@@ -317,6 +319,7 @@ async function poll() {
     renderChrome(s);
     if (page === "home") renderHome(s);
     renderCalib(s.calib);
+    renderExtras(s);
   } catch (e) { console.error(e); }
   setTimeout(poll, 50);
 }
@@ -338,6 +341,8 @@ async function init() {
   go("home");
   poll();
   const s = await api().state();
-  if (!s.calibrated) setTimeout(() => go("calibrate"), 600);
+  // First run: onboarding (training, then calibration; both can be skipped).
+  // Skipping is respected: calibration is never forced on later launches.
+  if (s.welcome) setTimeout(() => welcomeOpen(0), 600);
 }
 window.addEventListener("pywebviewready", init);

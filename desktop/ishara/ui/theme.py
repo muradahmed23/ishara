@@ -40,8 +40,9 @@ for _p in (LIGHT, DARK):
 C = dict(LIGHT)
 F = {}
 ICON_FONT = "Segoe Fluent Icons"
-FONT_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
-                        "assets", "fonts")
+from ..paths import ASSETS_DIR
+
+FONT_DIR = os.path.join(ASSETS_DIR, "fonts")
 
 # Line icons from the Windows 11 icon font
 I = dict(home="", training="", settings="", profile="", info="",

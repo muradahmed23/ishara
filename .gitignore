@@ -25,3 +25,14 @@ desktop.ini
 
 # --- Private documents ---
 docs/proposal/
+
+# --- Desktop packaging output ---
+desktop/dist/
+desktop/build/
+desktop/packaging/version_info.txt
+
+# --- Website ---
+website/node_modules/
+website/.next/
+website/.vercel/
+website/*.tsbuildinfo

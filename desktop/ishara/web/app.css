@@ -270,3 +270,22 @@ select { max-width: 280px; cursor: pointer; }
   .tile-action { grid-column: 1 / -1; flex-direction: row; align-items: center; justify-content: space-between; }
   .grid2 { grid-template-columns: 1fr; }
 }
+
+/* ---------------- Welcome, Help, Updates ---------------- */
+.wstatus { display: flex; align-items: center; gap: 10px; min-height: 40px; margin: 6px 0 18px; padding: 10px 14px; border-radius: 12px; background: var(--fill); font-weight: 500; }
+.wstatus:empty { display: none; }
+.wstatus .led { width: 9px; height: 9px; }
+.step-hint ul, .step-hint ol, .topic-body ol { margin: 8px 0 0 18px; display: flex; flex-direction: column; gap: 6px; }
+.topic { border: 0; }
+.topic summary { list-style: none; display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 10px 16px; cursor: pointer; font-weight: 500; }
+.topic summary::-webkit-details-marker { display: none; }
+.topic summary .num { width: 24px; height: 24px; border-radius: 50%; background: var(--fill); display: grid; place-items: center; font-size: 11px; color: var(--text-2); flex: none; }
+.topic summary .t { flex: 1; }
+.topic[open] summary .chev { transform: rotate(90deg); }
+.topic summary .chev { transition: transform .2s var(--ease); }
+.topic + .topic { border-top: 1px solid var(--sep); }
+.topic-body { padding: 0 16px 16px 52px; color: var(--text-2); display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.topic-body b { color: var(--text); }
+.progress.small { height: 4px; margin-top: 8px; max-width: 320px; }
+.hide { display: none !important; }
+.led.red { background: var(--red); }

@@ -19,14 +19,15 @@ import queue
 import re
 import threading
 
-BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODEL_DIR = os.path.join(BASE, "models", "vosk-model-small-en-us-0.15")
-WHISPER_DIR = os.path.join(BASE, "models", "whisper-{}")
+from .paths import MODELS_DIR, USER_DIR
+
+MODEL_DIR = os.path.join(MODELS_DIR, "vosk-model-small-en-us-0.15")
+WHISPER_DIR = os.path.join(MODELS_DIR, "whisper-{}")
 WHISPER_MODELS = {"base.en": "Standard (fast)", "small.en": "Best accuracy (slower)"}
 RATE = 16000
 MAX_UTTERANCE_S = 12      # never let one dictation chunk grow longer than this
 SILENCE_END_S = 0.8       # this much quiet after speech ends the sentence
-LOG_FILE = os.path.join(os.environ.get("APPDATA", "."), "Ishara", "voice.log")
+LOG_FILE = os.path.join(USER_DIR, "voice.log")
 
 
 def vlog(msg):

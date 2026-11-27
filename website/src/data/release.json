@@ -1,0 +1,42 @@
+{
+  "$schema": "./release.schema.json",
+  "product": "iShara",
+  "version": "2.0.0",
+  "status": "unreleased",
+  "releaseDate": null,
+  "channel": "stable",
+  "installer": {
+    "file": "iShara-Setup-2.0.0.exe",
+    "url": null,
+    "sha256": null,
+    "sizeBytes": null,
+    "includesModels": true
+  },
+  "requirements": {
+    "os": "Windows 10 (1809) or Windows 11, 64-bit",
+    "minWindowsBuild": 17763,
+    "bluetooth": "Bluetooth 4.0 (LE) or newer",
+    "microphone": true,
+    "diskSpaceMB": 2500
+  },
+  "models": {
+    "version": "2026.11",
+    "bundled": true,
+    "items": [
+      { "name": "vosk-model-small-en-us-0.15", "purpose": "voice commands" },
+      { "name": "whisper-base.en", "purpose": "dictation (standard)" },
+      { "name": "whisper-small.en", "purpose": "dictation (best accuracy)" }
+    ]
+  },
+  "firmware": {
+    "version": "2.0.0",
+    "board": "ESP32 Dev Module"
+  },
+  "notes": [
+    "Complete offline installer: app, Python runtime, dependencies and speech models in one file.",
+    "Guided calibration detects how the headband sits on your head automatically.",
+    "Voice clicks work everywhere, including the On-Screen Keyboard.",
+    "Hand mouse mode, middle click, back and forward buttons.",
+    "Your profiles and calibration are kept when you update."
+  ]
+}

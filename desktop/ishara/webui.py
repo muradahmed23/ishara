@@ -18,6 +18,8 @@ import time
 from . import __version__, profiles
 from . import model as pm
 from .calib import CalibrationSession
+from . import integrity
+from .updates import Updater
 from .protocol import DEFAULT_MODEL
 from .voice import WHISPER_MODELS, list_microphones, whisper_available
 
@@ -148,6 +150,16 @@ class Api:
         self._level = 0.0
         self._window = None
         self._native = NativeLayer(ctrl, self)
+        self._updater = Updater()
+        self._models = dict(state="checking", problems=[])
+        threading.Thread(target=self._verify_models, daemon=True, name="model-check").start()
+
+    def _verify_models(self):
+        try:
+            ok, problems = integrity.verify()
+            self._models = dict(state="ok" if ok else "damaged", problems=problems[:5])
+        except Exception as e:
+            self._models = dict(state="error", problems=[str(e)])
 
     # ---------------------------------------------------------- window helpers
     def bring_front(self):
@@ -185,6 +197,17 @@ class Api:
             profile=c.profile["name"],
             practice=dict(passed=len(s.get("practice_passed", [])), total=7),
             calib=self._calib.state() if self._calib and self._calib.active else None,
+            device=dict(
+                connection="Bluetooth LE",
+                link=c.link.state,
+                alive=alive,
+                # flag bit 4 of every live packet: the ESP32 can read the MPU6050
+                sensor_ok=bool(sample.sensor_ok) if sample and alive else None,
+                battery=None,          # this headband has no battery measurement
+            ),
+            models=self._models,
+            update=dict(self._updater.status),
+            welcome=not s.get("welcome_done", False),
         )
 
     def settings(self):
@@ -299,6 +322,36 @@ class Api:
 
     def open_practice(self):
         self._native.call(self._native.open_practice)
+
+    # ---------------------------------------------------------- welcome, help, updates
+    def speak(self, text):
+        """Read text aloud (welcome steps, help topics)."""
+        self._ctrl.say(str(text)[:600])
+        return True
+
+    def open_bluetooth_settings(self):
+        os.startfile("ms-settings:bluetooth")
+        return True
+
+    def welcome_done(self):
+        c = self._ctrl
+        c.settings["welcome_done"] = True
+        c.save_profile()
+        return True
+
+    def update_check(self):
+        self._updater.check()
+
+    def update_download(self):
+        self._updater.download()
+
+    def update_install(self):
+        if self._updater.install():
+            self._native.stopping = True              # the installer replaces the app
+            if self._window:
+                self._window.destroy()
+            return True
+        return False
 
     # ---------------------------------------------------------- calibration
     def calib_start(self):

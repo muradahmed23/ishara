@@ -5,6 +5,8 @@
 Tilt your head to move the cursor. Say *"click"*, *"scroll down"* or *"start typing"* to act.
 No hands, no internet, no account.
 
+**Website:** https://ishara-mu-three.vercel.app · **Download:** [latest release](https://github.com/muradahmed23/ishara/releases/latest)
+
 [![tests](https://github.com/muradahmed23/ishara/actions/workflows/tests.yml/badge.svg)](https://github.com/muradahmed23/ishara/actions/workflows/tests.yml)
 
 ---
@@ -43,10 +45,18 @@ calibration, training and profiles. Details: [docs/architecture.md](docs/archite
 |---|---|
 | [`firmware/`](firmware) | ESP32 firmware (Arduino) + vendored, patched BLE mouse library |
 | [`desktop/`](desktop) | Windows app (Python): voice, calibration, UI, tests |
+| [`website/`](website) | Next.js website (Vercel): product, hardware ordering, guide, downloads |
+| [`release/`](release) | `latest.json`: single source of truth for version, installer URL, SHA-256 (website + in-app updater) |
 | [`docs/`](docs) | [architecture](docs/architecture.md) · [protocol](docs/protocol.md) · [hardware](docs/hardware.md) · [design system](docs/design-system.md) |
 | [`scripts/`](scripts) | one-command setup, run, flash firmware |
 
-## Quick start
+## Install (users)
+
+Download **iShara-Setup.exe** from the [website](https://ishara-mu-three.vercel.app/download) and press Install.
+One offline installer (~660 MB) contains the app, its runtime and all speech models: no Python, no extra downloads.
+iShara starts with a spoken welcome guide: microphone → headband → Bluetooth → training → calibration (both skippable).
+
+## Quick start (developers)
 
 **Requirements:** Windows 10/11, Python 3.10+, Arduino IDE 2 (or `arduino-cli`) with the ESP32 core.
 
@@ -76,6 +86,18 @@ cd ishara
 | Help | help → say a number · more · back · close |
 
 All phrases can be renamed in Settings.
+
+## Build the Windows installer
+
+```powershell
+.\scripts\setup.ps1 -BestDictation     # venv + all three speech models
+cd desktop
+.\packaging\build.ps1                  # PyInstaller -> Inno Setup -> dist\installer\iShara-Setup-<v>.exe
+```
+
+PyInstaller bundles the app and Python runtime (one-folder build); Inno Setup adds the models, shortcuts and
+an in-place upgrader that never touches user data (`%APPDATA%\Ishara`). Model files are checked against
+`MODELS.sha256` on first launch. Releasing: see [release/README.md](release/README.md).
 
 ## Tests
 
