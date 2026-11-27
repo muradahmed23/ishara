@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>iShara: Pitch Deck</title>
+<style>
+  @font-face { font-family: Inter; src: url("../../desktop/assets/fonts/Inter-Regular.ttf"); font-weight: 400; }
+  @font-face { font-family: Inter; src: url("../../desktop/assets/fonts/Inter-Medium.ttf"); font-weight: 500; }
+  @font-face { font-family: Inter; src: url("../../desktop/assets/fonts/Inter-SemiBold.ttf"); font-weight: 600 700; }
+  @font-face { font-family: Sora; src: url("../../website/src/fonts/Sora-Variable.woff2"); font-weight: 100 800; }
+  @page { size: 1280px 720px; margin: 0; }
+  :root { --bg:#f5f5f7; --surface:#fff; --text:#1d1d1f; --text2:#6e6e73; --sep:rgba(60,60,67,.12); --blue:#007aff; --green:#34c759; --orange:#ff9500; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Inter, sans-serif; color: var(--text); background: var(--bg); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .slide { width: 1280px; height: 720px; padding: 64px 80px; position: relative; overflow: hidden; page-break-after: always; break-after: page;
+    background: var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='97' viewBox='0 0 56 97'%3E%3Cpath d='M28 0 56 16.2v32.3L28 64.7 0 48.5V16.2z M28 64.7V97' fill='none' stroke='%231d1d1f' stroke-opacity='.05'/%3E%3C/svg%3E"); }
+  .slide.dark { background: #1d1d1f; color: #f5f5f7; }
+  h1, h2, h3, .big { font-family: Sora, Inter, sans-serif; letter-spacing: -0.035em; }
+  h1 { font-size: 84px; line-height: 1.02; font-weight: 700; }
+  h2 { font-size: 52px; line-height: 1.08; font-weight: 650; margin-bottom: 28px; }
+  h3 { font-size: 24px; font-weight: 600; margin-bottom: 8px; letter-spacing: -0.015em; }
+  p, li { font-size: 22px; line-height: 1.5; color: var(--text2); }
+  .dark p, .dark li { color: #a1a1a6; }
+  .eyebrow { font-family: Sora, Inter; font-size: 15px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--blue); margin-bottom: 18px; }
+  .mark { width: 64px; height: 64px; border-radius: 16px; background: var(--text); position: relative; }
+  .mark::before { content: ""; position: absolute; left: 28px; top: 14px; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+  .mark::after { content: ""; position: absolute; left: 28px; top: 27px; width: 8px; height: 22px; border-radius: 4px; background: #fff; }
+  .grid { display: grid; gap: 18px; }
+  .g2 { grid-template-columns: 1fr 1fr; } .g3 { grid-template-columns: repeat(3, 1fr); } .g4 { grid-template-columns: repeat(4, 1fr); }
+  .card { background: var(--surface); border: 1px solid var(--sep); border-radius: 22px; padding: 26px; box-shadow: 0 6px 20px rgba(0,0,0,.05); }
+  .card p { font-size: 18px; }
+  .dark .card { background: #2c2c2e; border-color: #3a3a3c; box-shadow: none; }
+  .num { font-family: Sora; font-size: 56px; font-weight: 700; letter-spacing: -0.04em; color: var(--text); }
+  .dark .num { color: #fff; }
+  .pill { display: inline-block; padding: 6px 14px; border-radius: 999px; background: rgba(0,122,255,.1); color: var(--blue); font-weight: 600; font-size: 16px; margin: 4px 6px 4px 0; }
+  .foot { position: absolute; left: 80px; right: 80px; bottom: 34px; display: flex; justify-content: space-between; font-size: 14px; color: #a1a1a6; }
+  .flow { display: flex; align-items: center; gap: 14px; margin-top: 10px; }
+  .flow .card { flex: 1; padding: 20px; text-align: center; }
+  .flow .arrow { font-size: 30px; color: var(--blue); }
+  .tick li { list-style: none; padding-left: 34px; position: relative; margin-bottom: 10px; }
+  .tick li::before { content: "✓"; position: absolute; left: 0; color: var(--green); font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; font-size: 18px; }
+  td { padding: 10px 12px; border-bottom: 1px solid var(--sep); color: var(--text2); }
+  td:first-child { color: var(--text); font-weight: 600; width: 34%; }
+  a { color: var(--blue); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<!-- 1 Title -->
+<section class="slide">
+  <div style="display:flex;align-items:center;gap:18px;margin-bottom:70px"><div class="mark"></div><div class="big" style="font-size:34px;font-weight:700">iShara</div></div>
+  <div class="eyebrow">Hands-free computer control</div>
+  <h1>Your head is the mouse.<br>Your voice does the rest.</h1>
+  <p style="margin-top:28px;max-width:860px">A low-cost head-tilt mouse headband and an offline voice-control app for people who cannot use their hands.</p>
+  <div style="margin-top:34px"><span class="pill">Track 2 · Healthcare</span><span class="pill">Hardware + Software</span><span class="pill">Open source</span></div>
+  <div class="foot"><span>Hackathon (Innovation Sprint) CYE 2026</span><span>ishara-mu-three.vercel.app</span></div>
+</section>
+
+<!-- 2 Problem -->
+<section class="slide">
+  <div class="eyebrow">The problem</div>
+  <h2>Millions can't use a mouse<br>or keyboard.</h2>
+  <div class="grid g3" style="margin-top:20px">
+    <div class="card"><h3>Who</h3><p>People with spinal cord injury, ALS, cerebral palsy, amputation, stroke, or severe RSI.</p></div>
+    <div class="card"><h3>Today's options</h3><p>Commercial head mice and eye trackers are expensive and hard to set up without help.</p></div>
+    <div class="card"><h3>Free tools</h3><p>Webcam trackers depend on lighting, drain the laptop, and still need a way to click and type.</p></div>
+  </div>
+  <p style="margin-top:34px;font-size:24px;color:var(--text)"><b>Result:</b> losing hand movement often means losing independence on a computer: study, work, communication.</p>
+</section>
+
+<!-- 3 Solution -->
+<section class="slide">
+  <div class="eyebrow">The solution</div>
+  <h2>A headband that is a mouse,<br>and a voice that clicks.</h2>
+  <div class="grid g2" style="margin-top:12px">
+    <div class="card"><h3>Headband</h3><p>ESP32 + MPU6050 on a foam headband, 1200 mAh battery. A real Bluetooth mouse: tilt toward a shoulder for left/right, lift or lower the chin for up/down. Works the moment it pairs.</p></div>
+    <div class="card"><h3>Windows app</h3><p>30+ offline voice commands, voice typing, spoken onboarding, guided calibration, 7 practice lessons and personal profiles. Nothing is uploaded.</p></div>
+  </div>
+  <ul class="tick" style="margin-top:28px;columns:2;column-gap:40px">
+    <li>Click, double, right, middle click</li><li>Scroll, drag, back / forward</li>
+    <li>Voice typing with punctuation</li><li>Pause and emergency stop</li>
+  </ul>
+</section>
+
+<!-- 4 How it works -->
+<section class="slide">
+  <div class="eyebrow">How it works</div>
+  <h2>From head tilt to cursor in 15 ms.</h2>
+  <div class="flow">
+    <div class="card"><h3>MPU6050</h3><p>measures head tilt</p></div><div class="arrow">→</div>
+    <div class="card"><h3>ESP32</h3><p>personal movement model: dead zone, curve, speed</p></div><div class="arrow">→</div>
+    <div class="card"><h3>Bluetooth HID</h3><p>standard mouse reports every 15 ms</p></div><div class="arrow">→</div>
+    <div class="card"><h3>Windows</h3><p>cursor moves</p></div>
+  </div>
+  <div class="grid g3" style="margin-top:26px">
+    <div class="card"><h3>Any mounting angle</h3><p>The firmware learns each user's straight-ahead position; calibration checks the head is still and upright.</p></div>
+    <div class="card"><h3>Hardware clicks</h3><p>Voice clicks are sent by the headband itself, so they even work on the On-Screen Keyboard.</p></div>
+    <div class="card"><h3>Offline speech</h3><p>Vosk for commands, faster-whisper for typing, all on the user's own computer.</p></div>
+  </div>
+</section>
+
+<!-- 5 Product -->
+<section class="slide">
+  <div class="eyebrow">Built and shipped</div>
+  <h2>A real product, not a prototype demo.</h2>
+  <div class="grid g4" style="margin-top:10px">
+    <div class="card"><div class="num">223 MB</div><p>one-click Windows installer, models included</p></div>
+    <div class="card"><div class="num">30+</div><p>offline voice commands with a spoken help menu</p></div>
+    <div class="card"><div class="num">8</div><p>step spoken onboarding, every step skippable</p></div>
+    <div class="card"><div class="num">0</div><p>bytes uploaded: fully private</p></div>
+  </div>
+  <ul class="tick" style="margin-top:28px;columns:2;column-gap:40px">
+    <li>Optional high-accuracy model, SHA-256 verified</li><li>Update checker that keeps profiles</li>
+    <li>Website with a live webcam demo</li><li>3D model of the real wiring</li>
+    <li>46 automated app tests + CI</li><li>Open source on GitHub</li>
+  </ul>
+</section>
+
+<!-- 6 Tech -->
+<section class="slide">
+  <div class="eyebrow">Technology</div>
+  <h2>Hardware, firmware, app and web.</h2>
+  <table>
+    <tr><td>Hardware</td><td>ESP32 dev board · MPU6050 · 3.7 V 1200 mAh Li-Po · USB-C charger · buzzer · foam headband</td></tr>
+    <tr><td>Firmware</td><td>Arduino C++ · BLE HID mouse + custom GATT service · settings stored in flash</td></tr>
+    <tr><td>Desktop app</td><td>Python · Vosk · faster-whisper · Bleak · WebView2 UI · PyInstaller + Inno Setup</td></tr>
+    <tr><td>Website</td><td>Next.js 15 · React 19 · TypeScript · Three.js · MediaPipe · Vercel</td></tr>
+    <tr><td>Quality</td><td>Unit tests · real-face direction tests · GitHub Actions (app tests + firmware build)</td></tr>
+  </table>
+</section>
+
+<!-- 7 Impact & next -->
+<section class="slide dark">
+  <div class="eyebrow">Impact and what's next</div>
+  <h2 style="color:#fff">Independence, at a low cost.</h2>
+  <div class="grid g2">
+    <div class="card"><h3 style="color:#fff">Impact</h3><p>Lets a person set up and use a computer without someone else's hands: browsing, studying, typing, communicating. Built from widely available parts, open source, and private by design.</p></div>
+    <div class="card"><h3 style="color:#fff">Next</h3><p>Enclosure and compact PCB · battery monitoring · head-turn tracking (gyro fusion) · Urdu and more languages · macOS/Linux · signed installer · trials with occupational therapists.</p></div>
+  </div>
+</section>
+
+<!-- 8 Links -->
+<section class="slide">
+  <div style="display:flex;align-items:center;gap:18px;margin-bottom:46px"><div class="mark"></div><div class="big" style="font-size:34px;font-weight:700">iShara</div></div>
+  <h2>Try it yourself.</h2>
+  <table style="max-width:980px">
+    <tr><td>Website + live demo</td><td><a href="https://ishara-mu-three.vercel.app">ishara-mu-three.vercel.app</a></td></tr>
+    <tr><td>Try with your head</td><td><a href="https://ishara-mu-three.vercel.app/#try">ishara-mu-three.vercel.app/#try</a></td></tr>
+    <tr><td>Download (Windows)</td><td><a href="https://ishara-mu-three.vercel.app/download">ishara-mu-three.vercel.app/download</a></td></tr>
+    <tr><td>Source code</td><td><a href="https://github.com/muradahmed23/ishara">github.com/muradahmed23/ishara</a></td></tr>
+  </table>
+  <p style="margin-top:34px;font-size:26px;color:var(--text)">Thank you.</p>
+  <div class="foot"><span>Murad Ahmed</span><span>Hackathon (Innovation Sprint) CYE 2026</span></div>
+</section>
+</body>
+</html>
