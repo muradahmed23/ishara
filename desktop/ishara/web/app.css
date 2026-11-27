@@ -289,3 +289,7 @@ select { max-width: 280px; cursor: pointer; }
 .progress.small { height: 4px; margin-top: 8px; max-width: 320px; }
 .hide { display: none !important; }
 .led.red { background: var(--red); }
+
+/* text selection: iShara blue */
+::selection { background: var(--blue-soft); color: inherit; }
+[data-theme="dark"] ::selection { background: rgba(10, 132, 255, 0.4); }
