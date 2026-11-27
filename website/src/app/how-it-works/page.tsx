@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Playground } from "@/components/Playground";
 
 export const metadata: Metadata = { title: "How it works", description: "How iShara turns head movement and voice into mouse control." };
 
@@ -26,6 +27,11 @@ export default function HowItWorks() {
             <p>Each person gets a profile with their own calibration and settings. Seven practice lessons build confidence step by step, and every action is spoken aloud.</p>
           </div>
         </div>
+      </section>
+      <section className="wrap section-tight" aria-labelledby="pg-title">
+        <h3 id="pg-title" style={{ marginBottom: 6 }}>Play with the movement model</h3>
+        <p className="muted" style={{ marginBottom: 18 }}>These are the settings calibration tunes for each person. Same math as the headband firmware.</p>
+        <Playground />
       </section>
       <section className="wrap section-tight">
         <h3 style={{ marginBottom: 14 }}>Voice commands</h3>

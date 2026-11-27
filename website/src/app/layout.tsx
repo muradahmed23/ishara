@@ -1,11 +1,21 @@
 ﻿import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { site } from "@/config/site";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
+// Same Inter files as the desktop app (desktop/assets/fonts), self-hosted: no network at build or runtime.
+const inter = localFont({
+  src: [
+    { path: "../fonts/Inter-Regular.ttf", weight: "400", style: "normal" },
+    { path: "../fonts/Inter-Medium.ttf", weight: "500", style: "normal" },
+    { path: "../fonts/Inter-SemiBold.ttf", weight: "600", style: "normal" },
+    { path: "../fonts/Inter-SemiBold.ttf", weight: "700", style: "normal" },
+  ],
+  variable: "--font-inter",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://ishara-mu-three.vercel.app"),

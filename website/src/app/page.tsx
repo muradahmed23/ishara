@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { DeviceIllustration } from "@/components/DeviceIllustration";
+import { ExplodedView } from "@/components/ExplodedView";
+import { HeadDemo } from "@/components/HeadDemo";
+import { SignalStory } from "@/components/SignalStory";
 import { Icon } from "@/components/Icon";
 import { getRelease, isDownloadable } from "@/lib/release";
 
@@ -26,16 +28,18 @@ export default async function Home() {
         </p>
         <div className="row">
           <Link href="/download" className="btn btn-primary">{ready ? `Download iShara ${release.version}` : "Get iShara"}</Link>
-          <Link href="/hardware" className="btn btn-gray">Get the headband</Link>
+          <a href="#try" className="btn btn-gray">Try it with your head</a>
         </div>
         <p className="hero-meta">Windows 10 &amp; 11 · works offline · open source</p>
       </section>
 
-      <section className="wrap section-tight">
-        <div className="device-stage"><div className="device"><DeviceIllustration /></div></div>
-        <p className="center small muted" style={{ marginTop: 14, maxWidth: 560 }}>
-          The current prototype: an ESP32 board, an MPU6050 motion sensor and a rechargeable battery on a foam headband.
-        </p>
+      <section className="wrap section-tight" id="try" aria-labelledby="try-title">
+        <div className="section-head center" style={{ textAlign: "center", marginBottom: 28 }}>
+          <div className="eyebrow">Live demo</div>
+          <h2 id="try-title">Try it now. No headband needed.</h2>
+          <p className="lead center">Your webcam stands in for the headband. Same movement model, right in your browser.</p>
+        </div>
+        <div className="device-stage"><HeadDemo /></div>
       </section>
 
       <div className="band"><section className="wrap section">
@@ -53,6 +57,10 @@ export default async function Home() {
           ))}
         </div>
       </section></div>
+
+      <ExplodedView />
+
+      <div className="band"><SignalStory /></div>
 
       <section className="wrap section">
         <div className="section-head">

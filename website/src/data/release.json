@@ -2,14 +2,14 @@
   "$schema": "./release.schema.json",
   "product": "iShara",
   "version": "2.0.0",
-  "status": "unreleased",
-  "releaseDate": null,
+  "status": "released",
+  "releaseDate": "2026-11-27",
   "channel": "stable",
   "installer": {
     "file": "iShara-Setup-2.0.0.exe",
-    "url": null,
-    "sha256": null,
-    "sizeBytes": null,
+    "url": "https://github.com/muradahmed23/ishara/releases/download/v2.0.0/iShara-Setup-2.0.0.exe",
+    "sha256": "986fbb8b6fd3c8f6d6826bf77c33e37e5acbde3292df29981b6fb0ce956cae3e",
+    "sizeBytes": 690833369,
     "includesModels": true
   },
   "requirements": {
@@ -23,9 +23,18 @@
     "version": "2026.11",
     "bundled": true,
     "items": [
-      { "name": "vosk-model-small-en-us-0.15", "purpose": "voice commands" },
-      { "name": "whisper-base.en", "purpose": "dictation (standard)" },
-      { "name": "whisper-small.en", "purpose": "dictation (best accuracy)" }
+      {
+        "name": "vosk-model-small-en-us-0.15",
+        "purpose": "voice commands"
+      },
+      {
+        "name": "whisper-base.en",
+        "purpose": "dictation (standard)"
+      },
+      {
+        "name": "whisper-small.en",
+        "purpose": "dictation (best accuracy)"
+      }
     ]
   },
   "firmware": {
