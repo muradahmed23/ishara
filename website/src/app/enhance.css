@@ -1,0 +1,173 @@
+/* iShara website: motion & pattern layer (app colours only). Loaded after globals.css. */
+
+/* ================= site-wide pattern ================= */
+:root {
+  --pat-hex-faint: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='97' viewBox='0 0 56 97'%3E%3Cpath d='M28 0 56 16.2v32.3L28 64.7 0 48.5V16.2z M28 64.7V97' fill='none' stroke='%231d1d1f' stroke-opacity='.045' stroke-width='1'/%3E%3C/svg%3E");
+}
+body { background-color: var(--bg); background-image: var(--pat-hex-faint); background-size: 56px 97px; }
+.band { background-color: var(--surface); }
+.footer { background: var(--surface); }
+
+/* ================= reveal on scroll (only when JS runs) ================= */
+.js .reveal { opacity: 0; transition: opacity 0.7s var(--ease), transform 0.7s var(--ease), filter 0.7s var(--ease); }
+.js .reveal.r-up { transform: translateY(28px); }
+.js .reveal.r-scale { transform: scale(0.94); }
+.js .reveal.r-left { transform: translateX(-36px); }
+.js .reveal.r-right { transform: translateX(36px); }
+.js .reveal.r-blur { filter: blur(10px); transform: translateY(12px); }
+.js .reveal.in { opacity: 1; transform: none; filter: none; }
+
+/* hero entrance + soft sheen on the headline */
+.hero > * { animation: hero-in 0.9s var(--ease) both; }
+.hero > *:nth-child(2) { animation-delay: 0.08s; }
+.hero > *:nth-child(3) { animation-delay: 0.16s; }
+.hero > *:nth-child(4) { animation-delay: 0.24s; }
+.hero > *:nth-child(5) { animation-delay: 0.32s; }
+@keyframes hero-in { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+.hero h1 {
+  background: linear-gradient(100deg, var(--text) 0 42%, #6e6e73 50%, var(--text) 58% 100%);
+  background-size: 260% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
+  animation: hero-in 0.9s var(--ease) 0.08s both, sheen 2.4s 1s ease-in-out 1 both;
+}
+@keyframes sheen { from { background-position: 100% 0; } to { background-position: -60% 0; } }
+
+/* ================= bento features ================= */
+.bento { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.bcard {
+  position: relative; overflow: hidden; border-radius: 24px; background: var(--surface); border: 1px solid var(--sep); box-shadow: var(--shadow);
+  display: flex; flex-direction: column; min-height: 300px;
+}
+.js .bcard.reveal.in { transition: opacity 0.7s var(--ease), transform 0.35s var(--ease), box-shadow 0.35s var(--ease); }
+.bcard.in:hover, .bcard:not(.reveal):hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.b-wide { grid-column: span 2; }
+.b-full { grid-column: 1 / -1; min-height: 0; flex-direction: row; align-items: center; gap: 24px; }
+.b-dark { background: #1d1d1f; color: #f5f5f7; border-color: #1d1d1f; }
+.b-dark .btext p { color: #a1a1a6; }
+.btext { padding: 0 24px 24px; }
+.btext p { color: var(--text-2); margin-top: 6px; font-size: 15px; }
+.art { position: relative; flex: 1; min-height: 170px; display: grid; place-items: center; margin: 12px 12px 16px; border-radius: 18px; background: var(--bg); overflow: hidden; }
+.bstats { flex: 1.3; display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; padding: 24px; }
+.bstats div { display: grid; gap: 2px; }
+.bstats b { font-size: clamp(28px, 4vw, 40px); letter-spacing: -0.03em; }
+.bstats span { font-size: 13px; color: #a1a1a6; }
+.b-full .btext { flex: 1; padding: 24px; }
+@media (max-width: 860px) {
+  .bento { grid-template-columns: 1fr 1fr; }
+  .b-wide, .b-full { grid-column: 1 / -1; }
+  .b-full { flex-direction: column; align-items: stretch; }
+}
+@media (max-width: 600px) { .bento { grid-template-columns: 1fr; } .bstats { grid-template-columns: 1fr 1fr; } }
+
+/* head mouse: head tilts, cursor follows on the mini screen */
+.head-svg { width: min(360px, 90%); height: auto; }
+.head-tilt { transform-box: view-box; transform-origin: 60px 100px; animation: head-tilt 5s ease-in-out infinite; }
+@keyframes head-tilt { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-14deg); } 50% { transform: rotate(0); } 75% { transform: rotate(14deg); } }
+.head-cursor { animation: head-cursor 5s ease-in-out infinite; }
+/* Same rule as the firmware. The drawn person faces the viewer, so rotate(-14deg) (leaning to the
+   viewer's left) is the person's RIGHT shoulder -> cursor moves right; rotate(+14deg) -> left. */
+@keyframes head-cursor { 0%, 100% { transform: translate(146px, 46px); } 25% { transform: translate(172px, 46px); } 50% { transform: translate(146px, 46px); } 75% { transform: translate(122px, 46px); } }
+
+/* voice: waveform + cycling commands */
+.art-voice { gap: 14px; align-content: center; }
+.wave { display: flex; gap: 4px; align-items: center; height: 56px; }
+.wave i { display: block; width: 5px; height: 52px; border-radius: 3px; background: var(--blue); transform-origin: center; animation: wave 0.9s ease-in-out infinite alternate; }
+@keyframes wave { from { transform: scaleY(0.15); opacity: 0.5; } to { transform: scaleY(1); opacity: 1; } }
+.cycle { position: relative; height: 34px; width: 160px; }
+.cycle span {
+  position: absolute; inset: 0; display: grid; place-items: center; border-radius: 999px; background: var(--surface); border: 1px solid var(--sep);
+  font-weight: 600; font-size: 14px; opacity: 0; animation: cycle 6s infinite;
+}
+.cycle span:nth-child(2) { animation-delay: 2s; }
+.cycle span:nth-child(3) { animation-delay: 4s; }
+@keyframes cycle { 0% { opacity: 0; transform: translateY(8px); } 6%, 30% { opacity: 1; transform: none; } 36%, 100% { opacity: 0; transform: translateY(-8px); } }
+
+/* typing: words appear one by one */
+.doc { width: 82%; padding: 18px; border-radius: 12px; background: var(--surface); border: 1px solid var(--sep); font-weight: 500; line-height: 1.6; }
+.doc span { opacity: 0; animation: word 4.6s infinite; }
+@keyframes word { 0% { opacity: 0; } 4%, 85% { opacity: 1; } 95%, 100% { opacity: 0; } }
+.caret { display: inline-block; width: 2px; height: 1.1em; vertical-align: -0.15em; background: var(--blue); animation: blink 1s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+
+/* calibration: rings pulse, dot settles on the centre */
+.rings { position: absolute; inset: 0; display: grid; place-items: center; }
+.rings i { position: absolute; border-radius: 50%; border: 1.5px solid rgba(0, 122, 255, 0.35); animation: ring 3s ease-out infinite; }
+.rings i:nth-child(1) { width: 40px; height: 40px; }
+.rings i:nth-child(2) { width: 80px; height: 80px; animation-delay: 0.4s; }
+.rings i:nth-child(3) { width: 120px; height: 120px; animation-delay: 0.8s; }
+@keyframes ring { 0% { transform: scale(0.8); opacity: 0; } 30% { opacity: 1; } 100% { transform: scale(1.15); opacity: 0; } }
+.art-cal .dot {
+  width: 16px; height: 16px; border-radius: 50%; background: var(--blue); border: 3px solid #fff; box-shadow: 0 2px 10px rgba(0, 122, 255, 0.5);
+  animation: settle 3s var(--ease) infinite;
+}
+@keyframes settle { 0% { transform: translate(-44px, -30px); } 45%, 100% { transform: none; } }
+
+/* keyboard: keys get pressed */
+.art-kbd { align-content: center; gap: 5px; padding: 12px; }
+.krow { display: flex; gap: 4px; justify-content: center; }
+.krow span {
+  width: 22px; height: 24px; border-radius: 5px; background: var(--surface); border: 1px solid var(--sep); display: grid; place-items: center;
+  font-size: 10px; font-weight: 600; color: var(--text-2);
+}
+.krow span.press { animation: key 3s infinite; }
+.krow span.p1 { animation-delay: 1s; }
+.krow span.p2 { animation-delay: 2s; }
+@keyframes key {
+  0%, 8% { background: var(--blue); color: #fff; transform: scale(0.9); border-color: var(--blue); }
+  20%, 100% { background: var(--surface); color: var(--text-2); transform: none; border-color: var(--sep); }
+}
+
+/* ================= demo: attract preview + frosted start panel ================= */
+.preview { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.pb {
+  position: absolute; width: 56px; height: 56px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0 12%, rgba(0, 122, 255, 0.2) 13% 60%, rgba(0, 122, 255, 0.32) 100%);
+  box-shadow: inset 0 0 0 2px rgba(0, 122, 255, 0.4); animation: pb-pop 8s infinite;
+}
+.pb.b1 { left: 12%; top: 16%; animation-delay: 0s; }
+.pb.b2 { left: 80%; top: 14%; animation-delay: 2s; }
+.pb.b3 { left: 82%; top: 70%; animation-delay: 4s; }
+.pb.b4 { left: 10%; top: 72%; animation-delay: 6s; }
+@keyframes pb-pop { 0%, 20% { transform: scale(1); opacity: 1; } 24% { transform: scale(1.4); opacity: 0; } 62% { transform: scale(0.3); opacity: 0; } 72%, 100% { transform: scale(1); opacity: 1; } }
+.pcursor { position: absolute; left: 0; top: 0; width: 100%; height: 100%; animation: pc-path 8s ease-in-out infinite; }
+.pcursor span { position: absolute; left: 0; top: 0; }
+.pcursor span { display: block; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: var(--blue); border: 3px solid #fff; box-shadow: 0 2px 10px rgba(0, 122, 255, 0.5); }
+@keyframes pc-path {
+  0% { transform: translate(50%, 50%); }
+  14%, 20% { transform: translate(calc(12% + 28px), calc(16% + 28px)); }
+  39%, 45% { transform: translate(calc(80% + 28px), calc(14% + 28px)); }
+  64%, 70% { transform: translate(calc(82% + 28px), calc(70% + 28px)); }
+  89%, 95% { transform: translate(calc(10% + 28px), calc(72% + 28px)); }
+  100% { transform: translate(50%, 50%); }
+}
+.phead { position: absolute; left: 50%; top: 18px; width: 64px; height: 64px; margin-left: -32px; opacity: 0.8; }
+.phead-tilt { transform-box: view-box; transform-origin: 40px 70px; animation: head-tilt 4s ease-in-out infinite; }
+.demo-panel.glass {
+  inset: auto; left: 50%; top: 50%; transform: translate(-50%, -50%); width: min(520px, calc(100% - 32px));
+  background: rgba(255, 255, 255, 0.86); backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid var(--sep); border-radius: 24px; box-shadow: var(--shadow-lg); padding: 28px;
+}
+@media (max-width: 600px) { .phead { display: none; } .demo-panel.glass { padding: 20px; } }
+
+/* ================= story steps: buttons (hover / click / focus) ================= */
+.story-steps li { padding: 0; display: block; }
+.story-btn { all: unset; box-sizing: border-box; display: flex; gap: 16px; width: 100%; padding: 22px; border-radius: 20px; cursor: pointer; }
+.story-btn:focus-visible { outline: 3px solid var(--blue); outline-offset: 3px; }
+.story-txt { display: grid; gap: 4px; }
+.story-txt b { font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+.story-txt span { color: var(--text-2); }
+.story-steps li:hover { opacity: 1; }
+
+/* section eyebrows get a short animated rule */
+.section-head .eyebrow::after {
+  content: ""; display: inline-block; width: 28px; height: 2px; margin-left: 10px; vertical-align: middle; background: var(--blue);
+  transform-origin: left; animation: line-in 1s var(--ease) both;
+}
+@keyframes line-in { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .js .reveal { opacity: 1; transform: none; filter: none; }
+  .hero h1 { animation: none; }
+}
+
+/* looping animations pause when their section is off screen */
+.pause-offscreen:not(.playing) *, .pause-offscreen:not(.playing) *::before, .pause-offscreen:not(.playing) *::after { animation-play-state: paused !important; }

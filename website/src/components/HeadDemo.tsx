@@ -3,25 +3,38 @@
 import type { FaceLandmarker } from "@mediapipe/tasks-vision";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { axisSpeed, clamp, DEFAULT_MODEL, type MotionModel } from "@/lib/motion";
+import { cachedModel } from "@/lib/modelCache";
+import { DemoPreview } from "./DemoPreview";
 
 /*
  * "Try it with your head": the iShara experience in the browser.
  * Webcam -> MediaPipe face landmarker (runs locally, nothing is uploaded) -> head pitch/roll
  * -> the same movement model as the headband -> a cursor. Pop bubbles by saying "click"
  * (Web Speech API, Chrome/Edge) or by holding the cursor on a bubble (dwell, every browser).
- * Directions are calibrated from the visitor's own movement, like the real app.
+ * Directions are FIXED, exactly like the headband firmware (ishara_headband.ino):
+ *   tilt toward the RIGHT shoulder -> cursor right,  lift the chin -> cursor up.
+ * Measured with MediaPipe on a real face (see website/README.md, "Demo directions"):
+ *   roll  > 0  = head tilted toward the person's right shoulder
+ *   pitch < 0  = chin up
+ * Calibration only captures the straight-ahead position (and rejects it if the head moves).
  */
 
 const VISION_WASM = "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.17/wasm";
 const FACE_MODEL =
   "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
-const MODEL: MotionModel = { ...DEFAULT_MODEL, maxSpeed: 9 };
+// Firmware defaults (ishara_headband.ino Model): sx = 6, sy = 5 px per 15 ms report,
+// dead zone 0.22, curve 1.6, smoothing alpha 0.25 per report.
+const MODEL_X: MotionModel = { ...DEFAULT_MODEL, maxSpeed: 6 };
+const MODEL_Y: MotionModel = { ...DEFAULT_MODEL, maxSpeed: 5 };
+const ALPHA = 0.25;
 const DWELL_MS = 1100;
+// ?debug=1 exposes raw head angles on window.__isharaDemo (used by the automated direction test)
+const DEBUG = typeof window !== "undefined" && new URLSearchParams(window.location.search).has("debug");
 const BUBBLE_R = 34;
 const CURSOR_R = 9;
 
 type Phase =
-  | "idle" | "loading" | "neutral" | "right" | "up" | "play"
+  | "idle" | "loading" | "neutral" | "play"
   | "denied" | "nocamera" | "unsupported" | "error";
 
 type Bubble = { id: number; x: number; y: number; born: number };
@@ -29,9 +42,13 @@ type Bubble = { id: number; x: number; y: number; born: number };
 const PROMPTS: Partial<Record<Phase, string>> = {
   loading: "Starting the camera and face tracking…",
   neutral: "Look straight at the screen and keep still.",
-  right: "Tilt your head toward your RIGHT shoulder and hold.",
-  up: "Now lift your chin and look UP, and hold.",
 };
+// Same comfortable ranges as the firmware defaults (degrees to reach full speed)
+const RANGE_X = 15;
+const RANGE_Y = 12;
+const NEUTRAL_FRAMES = 30;
+const STILL_DEG = 2.5; // straight-ahead capture is rejected if the head moves more than this
+const UPRIGHT_DEG = 10; // ...or if the head is visibly tilted (webcams are upright, so roll ~ 0 when straight)
 
 // Minimal Web Speech API types (not in the TypeScript DOM lib)
 type SpeechResultEvent = { resultIndex: number; results: ArrayLike<ArrayLike<{ transcript: string }> & { isFinal: boolean }> };
@@ -54,6 +71,8 @@ export function HeadDemo() {
   const [score, setScore] = useState(0);
   const [voice, setVoice] = useState<"off" | "on" | "unsupported">("off");
   const [heard, setHeard] = useState("");
+  const [still, setStill] = useState(true);
+  const [hint, setHint] = useState("");
   const [, force] = useState(0);
 
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -69,9 +88,8 @@ export function HeadDemo() {
     rec: null as Recognizer | null,
     alive: false,
     phase: "idle" as Phase,
-    p0: 0, r0: 0, sx: 1, sy: 1, rangeX: 14, rangeY: 12,
+    p0: 0, r0: 0,
     samples: [] as { p: number; r: number }[],
-    holdSince: 0, extreme: 0,
     pf: 0, rf: 0, x: 0, y: 0, last: 0,
     bubbles: [] as Bubble[], nextId: 1, dwellId: 0, dwellSince: 0,
     lastVideoTime: -1, noFaceSince: 0,
@@ -80,8 +98,6 @@ export function HeadDemo() {
   const go = useCallback((p: Phase) => {
     eng.current.phase = p;
     eng.current.samples = [];
-    eng.current.holdSince = 0;
-    eng.current.extreme = 0;
     setProgress(0);
     setPhase(p);
   }, []);
@@ -167,54 +183,56 @@ export function HeadDemo() {
     let res;
     try { res = lm.detectForVideo(v, now); } catch { return; }
     const mtx = res.facialTransformationMatrixes?.[0]?.data;
-    if (!mtx) { if (!e.noFaceSince) e.noFaceSince = now; return; }
+    if (!mtx) {
+      if (!e.noFaceSince) e.noFaceSince = now;
+      if (DEBUG) (window as unknown as { __isharaDemo?: object }).__isharaDemo = { phase: e.phase, face: false, t: now };
+      return;
+    }
     e.noFaceSince = 0;
     const { pitch, roll } = headAngles(mtx);
+    if (DEBUG) (window as unknown as { __isharaDemo?: object }).__isharaDemo = { phase: e.phase, pitch, roll, p0: e.p0, r0: e.r0, x: e.x, y: e.y, t: now };
 
     if (e.phase === "neutral") {
       e.samples.push({ p: pitch, r: roll });
-      setProgress(Math.min(1, e.samples.length / 45));
-      if (e.samples.length >= 45) {
-        e.p0 = e.samples.reduce((s, q) => s + q.p, 0) / e.samples.length;
-        e.r0 = e.samples.reduce((s, q) => s + q.r, 0) / e.samples.length;
-        go("right");
+      setProgress(Math.min(1, e.samples.length / NEUTRAL_FRAMES));
+      if (e.samples.length >= NEUTRAL_FRAMES) {
+        const n = e.samples.length;
+        const mp = e.samples.reduce((s, q) => s + q.p, 0) / n;
+        const mr = e.samples.reduce((s, q) => s + q.r, 0) / n;
+        const moved = Math.max(...e.samples.map((q) => Math.max(Math.abs(q.p - mp), Math.abs(wrap(q.r - mr)))));
+        if (moved > STILL_DEG || Math.abs(mr) > UPRIGHT_DEG) {   // never accept a wrong "straight"
+          e.samples = [];
+          setProgress(0);
+          setStill(false);
+          setHint(Math.abs(mr) > UPRIGHT_DEG ? "Your head is tilted. Hold it straight for a moment…" : "You moved a little. Keep still for a moment…");
+          return;
+        }
+        setStill(true);
+        e.p0 = mp; e.r0 = mr;
+        e.x = area.clientWidth / 2; e.y = area.clientHeight / 2; e.pf = 0; e.rf = 0; e.last = now;
+        e.bubbles = []; spawn(); spawn(); spawn();
+        go("play"); startVoice();
       }
       return;
     }
     const dp = wrap(pitch - e.p0), dr = wrap(roll - e.r0);
 
-    if (e.phase === "right" || e.phase === "up") {
-      const val = e.phase === "right" ? dr : dp;
-      const need = e.phase === "right" ? 8 : 6;
-      if (Math.abs(val) >= need) {
-        if (!e.holdSince) e.holdSince = now;
-        if (Math.abs(val) > Math.abs(e.extreme)) e.extreme = val;
-        const held = (now - e.holdSince) / 700;
-        setProgress(Math.min(1, held));
-        if (held >= 1) {
-          if (e.phase === "right") { e.sx = Math.sign(e.extreme) || 1; e.rangeX = clamp(Math.abs(e.extreme) * 0.8, 8, 30); go("up"); }
-          else {
-            e.sy = Math.sign(e.extreme) || 1; e.rangeY = clamp(Math.abs(e.extreme) * 0.8, 6, 25);
-            e.x = area.clientWidth / 2; e.y = area.clientHeight / 2; e.pf = 0; e.rf = 0; e.last = now;
-            e.bubbles = []; spawn(); spawn(); spawn();
-            go("play"); startVoice();
-          }
-        }
-      } else { e.holdSince = 0; setProgress(0); }
-      return;
-    }
-
     if (e.phase === "play") {
-      // calibrated directions: + = right / up
-      const tx = dr * e.sx, ty = dp * e.sy;
-      e.rf += 0.35 * (tx - e.rf);
-      e.pf += 0.35 * (ty - e.pf);
+      // fixed directions, same as the firmware: + = right / up
+      const tx = dr, ty = -dp;
       const dt = Math.min(0.05, (now - (e.last || now)) / 1000); // seconds, capped after tab switches
       e.last = now;
-      const k = dt / 0.015; // firmware reports every 15 ms
+      const k = dt / 0.015;                                       // firmware reports every 15 ms
+      const a = 1 - Math.pow(1 - ALPHA, k);                       // same smoothing at any frame rate
+      e.rf += a * (tx - e.rf);
+      e.pf += a * (ty - e.pf);
       const w = area.clientWidth, h = area.clientHeight;
-      e.x = clamp(e.x + axisSpeed(e.rf, e.rangeX, MODEL) * k, CURSOR_R, w - CURSOR_R);
-      e.y = clamp(e.y - axisSpeed(e.pf, e.rangeY, MODEL) * k, CURSOR_R, h - CURSOR_R);
+      // the demo box is smaller than a monitor: scale so crossing it takes as long as crossing
+      // the real screen with the headband
+      const sx = clamp(w / (window.screen?.width || 1920), 0.3, 1);
+      const sy = clamp(h / (window.screen?.height || 1080), 0.3, 1);
+      e.x = clamp(e.x + axisSpeed(e.rf, RANGE_X, MODEL_X) * k * sx, CURSOR_R, w - CURSOR_R);
+      e.y = clamp(e.y - axisSpeed(e.pf, RANGE_Y, MODEL_Y) * k * sy, CURSOR_R, h - CURSOR_R);
       if (cursorRef.current) cursorRef.current.style.transform = `translate(${e.x}px, ${e.y}px)`;
 
       // dwell: hold the cursor on a bubble to pop it (works without voice)
@@ -231,7 +249,7 @@ export function HeadDemo() {
   const start = useCallback(async () => {
     if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) { setPhase("unsupported"); return; }
     stopAll();
-    setScore(0); setHeard(""); setVoice("off");
+    setScore(0); setHeard(""); setVoice("off"); setStill(true);
     go("loading");
     const e = eng.current;
     try {
@@ -246,9 +264,9 @@ export function HeadDemo() {
       v.srcObject = e.stream;
       await v.play();
       const { FaceLandmarker, FilesetResolver } = await import("@mediapipe/tasks-vision");
-      const files = await FilesetResolver.forVisionTasks(VISION_WASM);
+      const [files, modelBytes] = await Promise.all([FilesetResolver.forVisionTasks(VISION_WASM), cachedModel(FACE_MODEL)]);
       const make = (delegate: "GPU" | "CPU") => FaceLandmarker.createFromOptions(files, {
-        baseOptions: { modelAssetPath: FACE_MODEL, delegate },
+        baseOptions: { modelAssetBuffer: modelBytes, delegate },   // from IndexedDB after the first visit
         runningMode: "VIDEO", numFaces: 1, outputFacialTransformationMatrixes: true,
       });
       e.landmarker = await make("GPU").catch(() => make("CPU"));
@@ -263,7 +281,7 @@ export function HeadDemo() {
 
   const stop = useCallback(() => { stopAll(); eng.current.bubbles = []; go("idle"); }, [go, stopAll]);
 
-  const running = ["loading", "neutral", "right", "up", "play"].includes(phase);
+  const running = ["loading", "neutral", "play"].includes(phase);
   const failMsg: Partial<Record<Phase, string>> = {
     denied: "Camera permission was blocked. Allow the camera in your browser's address bar and try again.",
     nocamera: "No camera found, or it is used by another app. Close other apps using the camera and try again.",
@@ -286,17 +304,19 @@ export function HeadDemo() {
           </div>
         )}
 
+        {phase === "idle" && <DemoPreview />}
         {phase !== "play" && (
-          <div className="demo-panel">
+          <div className={`demo-panel${phase === "idle" ? " glass" : ""}`}>
             {phase === "idle" && (<>
               <h3>Try iShara with your head</h3>
-              <p className="muted">Your webcam stands in for the headband. Tilt your head to move, say <b>“click”</b> or hold still on a bubble to pop it.</p>
+              <p className="muted">Your webcam stands in for the headband. Tilt toward a shoulder to move left or right, lift or lower your chin to move up or down. Say <b>“click”</b> or hold still on a bubble to pop it.</p>
               <button className="btn btn-primary" onClick={start}>Start the demo</button>
               <p className="small muted">The camera stays on your device. Nothing is recorded or uploaded.</p>
             </>)}
-            {(phase === "loading" || phase === "neutral" || phase === "right" || phase === "up") && (<>
-              <div className="demo-step">{phase === "loading" ? "Starting" : phase === "neutral" ? "Step 1 of 3" : phase === "right" ? "Step 2 of 3" : "Step 3 of 3"}</div>
+            {(phase === "loading" || phase === "neutral") && (<>
+              <div className="demo-step">{phase === "loading" ? "Starting" : "Calibrating"}</div>
               <h3>{PROMPTS[phase]}</h3>
+              {phase === "neutral" && !still && <p className="small" style={{ color: "var(--orange)" }}>{hint}</p>}
               <div className="demo-progress"><div style={{ width: `${Math.round(progress * 100)}%` }} /></div>
               <button className="btn btn-gray btn-sm" onClick={stop}>Cancel</button>
             </>)}

@@ -27,6 +27,7 @@ export function ExplodedView() {
   const section = useRef<HTMLElement>(null);
   const explode = useRef(0);
   const [near, setNear] = useState(false);
+  const [visible, setVisible] = useState(false); // render 3D only while on screen
   const [gl, setGl] = useState(true);
   const [manual, setManual] = useState<null | 0 | 1>(null);
   const [reduce, setReduce] = useState(false);
@@ -41,16 +42,19 @@ export function ExplodedView() {
     const onMq = () => setReduce(mq.matches);
     mq.addEventListener("change", onMq);
     const io = new IntersectionObserver(([e]) => { if (e.isIntersecting) setNear(true); }, { rootMargin: "600px 0px" });
-    if (section.current) io.observe(section.current);
-    return () => { io.disconnect(); mq.removeEventListener("change", onMq); };
+    const vis = new IntersectionObserver(([e]) => setVisible(e.isIntersecting), { rootMargin: "50px 0px" });
+    if (section.current) { io.observe(section.current); vis.observe(section.current); }
+    return () => { io.disconnect(); vis.disconnect(); mq.removeEventListener("change", onMq); };
   }, []);
 
+  const visibleRef = useRef(false);
+  visibleRef.current = visible;
   useEffect(() => {
     let raf = 0;
     const tick = () => {
       raf = requestAnimationFrame(tick);
       const el = section.current;
-      if (!el) return;
+      if (!el || !visibleRef.current) return;        // no layout reads while scrolled away
       let target: number;
       if (manualRef.current !== null) target = manualRef.current;
       else {
@@ -90,7 +94,7 @@ export function ExplodedView() {
             {!gl ? (
               <div className="xv-loading">3D needs WebGL, which this browser has turned off.</div>
             ) : near ? (
-              <Headband3D explode={explode} reduceMotion={reduce} />
+              <Headband3D explode={explode} reduceMotion={reduce} active={visible} />
             ) : (
               <div className="xv-loading" />
             )}

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playground } from "@/components/Playground";
+import { Reveal } from "@/components/Reveal";
 
 export const metadata: Metadata = { title: "How it works", description: "How iShara turns head movement and voice into mouse control." };
 
@@ -21,11 +22,11 @@ export default function HowItWorks() {
       </section>
       <section className="wrap section-tight">
         <div className="grid g2">
-          {PARTS.map(([t, d]) => <div className="card" key={t}><h3>{t}</h3><p>{d}</p></div>)}
-          <div className="card">
+          {PARTS.map(([t, d], i) => <Reveal key={t} anim={i % 2 ? "right" : "left"} delay={(i % 2) * 80} className="card"><h3>{t}</h3><p>{d}</p></Reveal>)}
+          <Reveal anim="right" delay={80} className="card">
             <h3>Built for real people</h3>
             <p>Each person gets a profile with their own calibration and settings. Seven practice lessons build confidence step by step, and every action is spoken aloud.</p>
-          </div>
+          </Reveal>
         </div>
       </section>
       <section className="wrap section-tight" aria-labelledby="pg-title">

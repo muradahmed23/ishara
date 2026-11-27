@@ -5,7 +5,7 @@ import { axisSpeed, DEFAULT_MODEL } from "@/lib/motion";
 
 const STEPS = [
   { t: "Your head tilts", d: "The MPU6050 on your forehead feels gravity shift as you tilt toward a shoulder or lift your chin." },
-  { t: "Small movements are ignored", d: "Inside the dead zone (grey band) nothing happens, so a tired or shaky head doesn't move the cursor." },
+  { t: "Small movements are ignored", d: "Inside the dead zone (the shaded band) nothing happens, so a tired or shaky head doesn't move the cursor." },
   { t: "Bigger tilt, faster cursor", d: "Past the dead zone, speed follows a gentle curve: fine control near the centre, quick across the screen." },
   { t: "Sent as a real mouse", d: "The ESP32 sends the movement over Bluetooth every 15 ms. Windows sees an ordinary mouse." },
 ];
@@ -21,11 +21,14 @@ export function SignalStory() {
   const screen = useRef<HTMLCanvasElement>(null);
   const stepRefs = useRef<(HTMLLIElement | null)[]>([]);
   const [active, setActive] = useState(0);
+  const activeRef = useRef(0);
+  activeRef.current = active;
+  const pinned = useRef(false); // hover / focus / click wins over scrolling
 
   // highlight the step in the middle of the viewport
   useEffect(() => {
     const io = new IntersectionObserver(
-      (entries) => entries.forEach((e) => { if (e.isIntersecting) setActive(Number((e.target as HTMLElement).dataset.i)); }),
+      (entries) => entries.forEach((e) => { if (e.isIntersecting && !pinned.current) setActive(Number((e.target as HTMLElement).dataset.i)); }),
       { rootMargin: "-45% 0px -45% 0px" },
     );
     stepRefs.current.forEach((el) => el && io.observe(el));
@@ -56,12 +59,14 @@ export function SignalStory() {
       g.clearRect(0, 0, w, h);
       const mid = h / 2, k = (h / 2 - 12) / 22;
       const dz = DEFAULT_MODEL.deadZone * RANGE * k;
-      g.fillStyle = "rgba(120,120,128,0.12)";
+      const step = activeRef.current;
+      g.fillStyle = step === 1 ? "rgba(255,149,0,0.22)" : "rgba(120,120,128,0.12)";
       g.fillRect(0, mid - dz, w, dz * 2);
+      if (step === 1) { g.strokeStyle = "rgba(255,149,0,0.7)"; g.setLineDash([4, 4]); g.strokeRect(0.5, mid - dz, w - 1, dz * 2); g.setLineDash([]); }
       g.strokeStyle = "rgba(60,60,67,0.15)"; g.lineWidth = 1;
       g.beginPath(); g.moveTo(0, mid); g.lineTo(w, mid); g.stroke();
       const plot = (fn: (x: number) => number, color: string) => {
-        g.strokeStyle = color; g.lineWidth = 2.2; g.lineJoin = "round"; g.beginPath();
+        g.strokeStyle = color; g.lineWidth = step === 0 ? 3.2 : 2.2; g.lineJoin = "round"; g.beginPath();
         for (let px = 0; px <= w; px += 3) {
           const tt = t - 8 + (px / w) * 8;
           const y = mid - fn(tt) * k;
@@ -74,7 +79,15 @@ export function SignalStory() {
       g.font = "600 11px Inter, system-ui, sans-serif";
       g.fillStyle = "#007aff"; g.fillText("pitch (up / down)", 10, 16);
       g.fillStyle = "#34c759"; g.fillText("roll (left / right)", 10, 31);
-      g.fillStyle = "#6e6e73"; g.fillText("dead zone", w - 70, mid - dz - 6);
+      g.fillStyle = step === 1 ? "#c26f00" : "#6e6e73"; g.fillText("dead zone", w - 70, mid - dz - 6);
+      // step 3: live speed meter (how fast the cursor goes right now)
+      if (step === 2) {
+        const sp = Math.min(1, Math.hypot(axisSpeed(rollAt(t), RANGE, DEFAULT_MODEL), axisSpeed(pitchAt(t), RANGE, DEFAULT_MODEL)) / DEFAULT_MODEL.maxSpeed);
+        const bw = Math.min(160, w * 0.4);
+        g.fillStyle = "rgba(120,120,128,0.16)"; g.fillRect(w - bw - 12, h - 22, bw, 8);
+        g.fillStyle = "#007aff"; g.fillRect(w - bw - 12, h - 22, bw * sp, 8);
+        g.fillStyle = "#1d1d1f"; g.fillText("cursor speed", w - bw - 12, h - 28);
+      }
 
       // --- screen: the resulting cursor
       const s = fit(sr);
@@ -88,6 +101,18 @@ export function SignalStory() {
       for (let i = 1; i < trail.length; i++) {
         s.g.strokeStyle = `rgba(0,122,255,${(i / trail.length) * 0.5})`;
         s.g.beginPath(); s.g.moveTo(trail[i - 1].x * s.w, trail[i - 1].y * s.h); s.g.lineTo(trail[i].x * s.w, trail[i].y * s.h); s.g.stroke();
+      }
+      // step 4: Bluetooth reports flowing to the computer every 15 ms
+      if (activeRef.current === 3) {
+        s.g.fillStyle = "#007aff";
+        for (let k = 0; k < 6; k++) {
+          const px = ((t * 0.9 + k / 6) % 1) * s.w;
+          s.g.globalAlpha = 0.25 + 0.5 * (k / 6);
+          s.g.beginPath(); s.g.arc(px, 12, 3, 0, 7); s.g.fill();
+        }
+        s.g.globalAlpha = 1;
+        s.g.font = "600 11px Inter, system-ui, sans-serif";
+        s.g.fillText("Bluetooth · every 15 ms", 10, 30);
       }
       const cx = cur.x * s.w, cy = cur.y * s.h;
       s.g.fillStyle = "#1d1d1f";
@@ -128,8 +153,19 @@ export function SignalStory() {
         <ol className="story-steps">
           {STEPS.map((s, i) => (
             <li key={s.t} data-i={i} ref={(el) => { stepRefs.current[i] = el; }} className={i === active ? "on" : ""}>
-              <span className="story-num">{i + 1}</span>
-              <div><h3>{s.t}</h3><p>{s.d}</p></div>
+              <button
+                type="button"
+                className="story-btn"
+                aria-pressed={i === active}
+                onMouseEnter={() => { pinned.current = true; setActive(i); }}
+                onMouseLeave={() => { pinned.current = false; }}
+                onFocus={() => { pinned.current = true; setActive(i); }}
+                onBlur={() => { pinned.current = false; }}
+                onClick={() => setActive(i)}
+              >
+                <span className="story-num">{i + 1}</span>
+                <span className="story-txt"><b>{s.t}</b><span>{s.d}</span></span>
+              </button>
             </li>
           ))}
         </ol>
